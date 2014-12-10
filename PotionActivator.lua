@@ -4,7 +4,7 @@ local version = "0.02"
 local autoupdateenabled = true
 local UPDATE_SCRIPT_NAME = "PotionActivator"
 local UPDATE_HOST = "raw.github.com"
-local UPDATE_PATH = "ajgoreq/BoL/blob/master/PotionActivator.lua"
+local UPDATE_PATH = "/ajgoreq/BoL/master/PotionActivator.lua"
 local UPDATE_FILE_PATH = SCRIPT_PATH..GetCurrentEnv().FILE_NAME
 local UPDATE_URL = "https://"..UPDATE_HOST..UPDATE_PATH
 
@@ -44,4 +44,3 @@ function OnTick()
     if (myHero:CanUseSpell(manaPot) == READY) and myHero.mana < 200 then
         CastSpell(manaPot)
     end
-end
