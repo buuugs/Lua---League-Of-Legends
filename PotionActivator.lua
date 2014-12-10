@@ -4,7 +4,7 @@ local version = "0.02"
 local autoupdateenabled = true
 local UPDATE_SCRIPT_NAME = "PotionActivator"
 local UPDATE_HOST = "raw.github.com"
-local UPDATE_PATH = "ajgoreq/BoL/blob/master/PotionActivator.lua"
+local UPDATE_PATH = "ajgoreq/BoL/blob/BoL-Studio/PotionActivator.lua"
 local UPDATE_FILE_PATH = SCRIPT_PATH..GetCurrentEnv().FILE_NAME
 local UPDATE_URL = "https://"..UPDATE_HOST..UPDATE_PATH
 
