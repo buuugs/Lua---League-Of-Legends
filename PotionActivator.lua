@@ -1,4 +1,4 @@
-local version = "0.02"
+local version = "0.03"
 
 
 local autoupdateenabled = true
@@ -33,14 +33,15 @@ if autoupdateenabled then
 	AddTickCallback(update)
 end
 
-local hpPot = GetInventorySlotItem(2003)
-local manaPot = GetInventorySlotItem(2004)
+local hpPot   = function() return GetInventorySlotItem(2003) end
+local manaPot = function() return GetInventorySlotItem(2004) end
 
 function OnTick()
-    if (myHero:CanUseSpell(hpPot) == READY) and myHero.health < 200 then
-        CastSpell(hpPot)
-    end
+	if (myHero:CanUseSpell(hpPot()) == READY) and myHero.health < 200 then
+		CastSpell(hpPot)
+	end
 
-    if (myHero:CanUseSpell(manaPot) == READY) and myHero.mana < 200 then
-        CastSpell(manaPot)
-    end
+	if (myHero:CanUseSpell(manaPot()) == READY) and myHero.mana < 200 then
+		CastSpell(manaPot)
+	end
+end
