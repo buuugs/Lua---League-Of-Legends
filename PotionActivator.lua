@@ -36,12 +36,18 @@ end
 local hpPot   = function() return GetInventorySlotItem(2003) end
 local manaPot = function() return GetInventorySlotItem(2004) end
 
-function OnTick()
-	if (myHero:CanUseSpell(hpPot()) == READY) and myHero.health < 200 then
-		CastSpell(hpPot)
-	end
 
-	if (myHero:CanUseSpell(manaPot()) == READY) and myHero.mana < 200 then
-		CastSpell(manaPot)
+function OnTick()
+	if myHero.health < 200 then
+		local hpPot = GetInventorySlotItem(2003)
+		if (myHero:CanUseSpell(hpPot) == READY) then
+			CastSpell(hpPot)
+		end
+	end
+	if myHero.mana < 200 then
+		local manaPot = GetInventorySlotItem(2004)
+		if (myHero:CanUseSpell(manaPot) == READY) then
+			CastSpell(manaPot)
+		end
 	end
 end
