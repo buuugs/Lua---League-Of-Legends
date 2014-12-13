@@ -1,4 +1,4 @@
-local version = "2.22"
+local version = "2.23"
 
 
 local autoupdateenabled = true
@@ -34,6 +34,7 @@ if autoupdateenabled then
 end
 
 function OnLoad()
+  Config = scriptConfig("ActivatorFree", "Activfree")
   Config:addParam("ahp", "AutoHealthPotions", SCRIPT_PARAM_ONKEYTOGGLE, true, string.byte("U"))
   Config:addParam("amp", "AutoManaPotions", SCRIPT_PARAM_ONKEYTOGGLE, true, string.byte("T"))
   Config:addParam("aza", "AutoZhonya", SCRIPT_PARAM_ONKEYTOGGLE, true, string.byte("I"))
