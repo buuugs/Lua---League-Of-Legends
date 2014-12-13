@@ -34,9 +34,9 @@ if autoupdateenabled then
 end
 
 function OnLoad()
-  Config:addParam("ahp", "AutoHealthPotions", SCRIPT_PARAM_ONKEYTOGGLE, false, string.byte("U"))
-  Config:addParam("amp", "AutoManaPotions", SCRIPT_PARAM_ONKEYTOGGLE, false, string.byte("U"))
-  Config:addParam("aza", "AutoZhonya", SCRIPT_PARAM_ONKEYTOGGLE, false, string.byte("U"))
+  Config:addParam("ahp", "AutoHealthPotions", SCRIPT_PARAM_ONKEYTOGGLE, true, string.byte("U"))
+  Config:addParam("amp", "AutoManaPotions", SCRIPT_PARAM_ONKEYTOGGLE, true, string.byte("T"))
+  Config:addParam("aza", "AutoZhonya", SCRIPT_PARAM_ONKEYTOGGLE, true, string.byte("I"))
 end
 
 function OnTick()
