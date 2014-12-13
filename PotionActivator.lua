@@ -1,4 +1,4 @@
-local version = "2.21"
+local version = "2.22"
 
 
 local autoupdateenabled = true
@@ -33,18 +33,35 @@ if autoupdateenabled then
 	AddTickCallback(update)
 end
 
+function OnLoad()
+  Config:addParam("ahp", "AutoHealthPotions", SCRIPT_PARAM_ONKEYTOGGLE, false, string.byte("U"))
+  Config:addParam("amp", "AutoManaPotions", SCRIPT_PARAM_ONKEYTOGGLE, false, string.byte("U"))
+  Config:addParam("aza", "AutoZhonya", SCRIPT_PARAM_ONKEYTOGGLE, false, string.byte("U"))
+end
+
 function OnTick()
+ if (Config.ahp) then
     if myHero.health < 200 then
         local hpPot = GetInventorySlotItem(2003)
         if (hpPot ~= nil and myHero:CanUseSpell(hpPot) == READY)
             then CastSpell(hpPot)
         end
     end
+ end
+  if (Config.amp) then
     if myHero.mana < 200 then
         local manaPot = GetInventorySlotItem(2004)
         if (manaPot ~= nil and myHero:CanUseSpell(manaPot) == READY)
             then CastSpell(manaPot)
         end
     end
+	end
+	 if (Config.aza) then
+		if myHero.health < 100 then
+        local zhonya = GetInventorySlotItem(3157)
+        if (zhonya ~= nil and myHero:CanUseSpell(zhonya) == READY)
+            then CastSpell(zhonya)
+        end
+    end
 end
-
+end
