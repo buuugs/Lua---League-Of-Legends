@@ -1,4 +1,0 @@
-BoL
-===
-
-Bol Script
