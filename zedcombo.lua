@@ -52,6 +52,9 @@ function OnTick()
                     if (Config.usespellrzed) then
                          CastSpell(_R, ts.target)
                     end
+										end
+										end
+										end
 					if (myHero:CanUseSpell(_W) == READY) then
                     CastSpell(_W, ts.target)
                end
