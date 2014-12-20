@@ -1,10 +1,10 @@
-local version = "2.23"
+local version = "2.24"
 
 
 local autoupdateenabled = true
-local UPDATE_SCRIPT_NAME = "FreeActivator"
+local UPDATE_SCRIPT_NAME = "AQtivator"
 local UPDATE_HOST = "raw.github.com"
-local UPDATE_PATH = "/ajgoreq/BoL/master/FreeActivator.lua"
+local UPDATE_PATH = "/ajgoreq/BoL/master/AQtivator.lua"
 local UPDATE_FILE_PATH = SCRIPT_PATH..GetCurrentEnv().FILE_NAME
 local UPDATE_URL = "https://"..UPDATE_HOST..UPDATE_PATH
 
@@ -34,10 +34,10 @@ if autoupdateenabled then
 end
 
 function OnLoad()
-  Config = scriptConfig("ActivatorFree", "Activfree")
-  Config:addParam("ahp", "AutoHealthPotions", SCRIPT_PARAM_ONKEYTOGGLE, true, string.byte("U"))
-  Config:addParam("amp", "AutoManaPotions", SCRIPT_PARAM_ONKEYTOGGLE, true, string.byte("T"))
-  Config:addParam("aza", "AutoZhonya", SCRIPT_PARAM_ONKEYTOGGLE, true, string.byte("I"))
+  Config = scriptConfig("AQtivator", "Activfree")
+  Config:addParam("ahp", "AutoHealthPotions", SCRIPT_PARAM_ONOFF, true)
+  Config:addParam("amp", "AutoManaPotions", SCRIPT_PARAM_ONOFF, true)
+  Config:addParam("aza", "AutoZhonya", SCRIPT_PARAM_ONOFF, true)
 end
 
 function OnTick()
