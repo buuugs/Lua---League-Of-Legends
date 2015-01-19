@@ -1,11 +1,11 @@
 -- AutoUpdater
-local version = "0.01"
+local version = "0.01FIX"
 
 
 local autoupdateenabled = true
 local UPDATE_SCRIPT_NAME = "ZedeX"
 local UPDATE_HOST = "raw.github.com"
-local UPDATE_PATH = "/ajgoreq/BoL/master/ZedeX.lua"
+local UPDATE_PATH = "/ajgoreq/BoL/master/ZedeXFIX.lua"
 local UPDATE_FILE_PATH = SCRIPT_PATH..GetCurrentEnv().FILE_NAME
 local UPDATE_URL = "https://"..UPDATE_HOST..UPDATE_PATH
 
@@ -90,11 +90,11 @@ local rClone = nil
 
 local QRANGE = 900+100
 
-local WRANGE = 550
+local WRANGE = 550+400
 
 local ERANGE = 290
 
-local RRANGE = 550
+local RRANGE = 550+300
 
 
 function OnLoad()
@@ -205,3 +205,21 @@ if QREADY and GetDistance(target) < QRANGE  and Configzedex.harass.harass then
 		    end
 		  end
 		end
+		
+		function OnCreateObj(obj)
+	if obj.valid and obj.name:find("Zed_Clone_idle.troy") then
+		if wClone == nil then
+			wClone = obj
+		elseif rClone == nil then
+			rClone = obj
+		end
+	end
+end
+
+function OnDeleteObj(obj)
+	if obj.valid and wClone and obj == wClone then
+		wClone = nil
+	elseif obj.valid and rClone and obj == rClone then
+		rClone = nil
+	end
+end
