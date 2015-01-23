@@ -200,6 +200,11 @@ if QREADY and GetDistance(target) < QRANGE  and Configahrix.harass.harass then
 		  end
 		end
 		
+		
+		
+		
+		
+		
 		function minionCollision(target, range)
         for _, minionObjectE in pairs(enemyMinions.objects) do
                 if target ~= nil and player:GetDistance(minionObjectE) < range then
