@@ -74,6 +74,14 @@ end
 if myHero.charName ~= "Katarina" then return end
 
 
+local UseQ = StayBelle.comboset.useq
+
+local UseW = StayBelle.comboset.usew
+
+local UseE = StayBelle.comboset.usee
+
+local UseR = StayBelle.comboset.user
+
 local QRANGE = 675
 
 local WRANGE = 375
@@ -82,12 +90,16 @@ local ERANGE = QRANGE+25
 
 local RRANGE = 550
 
+local FarmKey = StayBelle.staykatafarm.farmkey
+
+local ComboKey = StayBelle.staycombo
+
 
 function OnLoad()
 Menu()
     print("<b><font color=\"#6699FF\">Slay Belle Katarina : Loaded</font>")
     PrintChat("/all Good Luck :D")
-   TargetSelector(TARGET_LESS_CAST, ERANGE, DAMAGE_MAGIC)
+   
 locals()
 end
 
@@ -99,61 +111,62 @@ ts:update()
 CoolDown()
 -------
 Harass()
+-------
+Farm()
 end
 
 function MenuKata()
     StayBelle = scriptConfig("StayKata", "StayKata")
  -----------------------------COMBO-----------------------------------
-		 Configzedex:addSubMenu("Combo Settings", "comboset")
-     Configzedex.comboset:addParam("zedezq", "Use Q", SCRIPT_PARAM_ONOFF, true)
-		 Configzedex.comboset:addParam("zedexw", "Use W", SCRIPT_PARAM_ONOFF, true)
-		 Configzedex.comboset:addParam("zedexe", "Use E", SCRIPT_PARAM_ONOFF, true)
-		 Configzedex.comboset:addParam("zedexr", "Use R", SCRIPT_PARAM_ONOFF, true)
-     SxOrb:RegisterHotKey("Fight", Configzedex, "combozedex") 
+		 StayBelle:addSubMenu("Combo Settings", "comboset")
+     StayBelle.comboset:addParam("useq", "Use Q", SCRIPT_PARAM_ONOFF, true)
+		 StayBelle.comboset:addParam("usew", "Use W", SCRIPT_PARAM_ONOFF, true)
+		 StayBelle.comboset:addParam("usee", "Use E", SCRIPT_PARAM_ONOFF, true)
+		 StayBelle.comboset:addParam("user", "Use R", SCRIPT_PARAM_ONOFF, true)
+     SxOrb:RegisterHotKey("Fight", StayBelle, "staycombo") 
 
 -------------------------------Farm--------------------------------------
  StayBelle:addSubMenu("Farm", "staykatafarm")
  StayBelle.staykatafarm:addParam("farmkey", "Farm Key", SCRIPT_PARAM_ONKEYTOGGLE, false, string.byte("Z"))
 
 		 --------------------------------Harass-------------------------------------------
-		 Configzedex:addSubMenu("Harass", "harass")
-		 Configzedex.harass:addParam("harass", "Harass", SCRIPT_PARAM_ONKEYDOWN, false, string.byte("C"))
-		 Configzedex.harass:addParam("harassQ", "Use Q", SCRIPT_PARAM_ONOFF, true)
+		 StayBelle:addSubMenu("Harass", "harass")
+		 StayBelle.harass:addParam("harass", "Harass", SCRIPT_PARAM_ONKEYDOWN, false, string.byte("C"))
+		 StayBelle.harass:addParam("harassQ", "Use Q", SCRIPT_PARAM_ONOFF, true)
 		 --------------------------Circle-------------------------------------------------
-		 Configzedex:addSubMenu("Circle", "circle")
-     Configzedex.circle:addParam("circleq", "Draw Q Circle", SCRIPT_PARAM_ONOFF, true)
-		 Configzedex.circle:addParam("circlew", "Draw W Circle", SCRIPT_PARAM_ONOFF, true)
-		 Configzedex.circle:addParam("circlee", "Draw E Circle", SCRIPT_PARAM_ONOFF, true)
+		 StayBelle:addSubMenu("Circle", "circle")
+     StayBelle.circle:addParam("circleq", "Draw Q Circle", SCRIPT_PARAM_ONOFF, true)
+		 StayBelle.circle:addParam("circlew", "Draw W Circle", SCRIPT_PARAM_ONOFF, true)
+		 StayBelle.circle:addParam("circlee", "Draw E Circle", SCRIPT_PARAM_ONOFF, true)
 		 ---------------------------------------------------------------------------------
-		 Configzedex:addSubMenu("OrbWalking", "orbWalking")
-		 SxOrb:LoadToMenu(Configzedex.orbWalking, true)
-		 Configzedex:addParam("combozedex", "Combo", SCRIPT_PARAM_ONKEYDOWN, false, 32)
+		 StayBelle:addSubMenu("OrbWalking", "orbWalking")
+		 SxOrb:LoadToMenu(StayBelle.orbWalking, true)
+		 StayBelle:addParam("staycombo", "Combo", SCRIPT_PARAM_ONKEYDOWN, false, 32)
 		 
-		 ts = TargetSelector(TARGET_LOW_HP,900+100,DAMAGE_PHYSICAL)
-                ts.name = Zed
-								Configzedex:addTS(ts)
+		 ts = TargetSelector(TARGET_LESS_CAST, ERANGE, DAMAGE_MAGIC)
+         enemyMinions = minionManager(MINION_ENEMY, ERANGE, player)
+        ts.name = Katarina
+		StayBelle:addTS(ts)
 							
 end
 
-function CastSpells()
+function Combo()
 
-ts:update()
-	
 	local target = ts.target
 
 	if not target then return end
 
 	if ValidTarget(target) then
-			if RREADY and GetDistance(target) < RRANGE  and Configzedex.comboset.zedexr and Configzedex.combozedex then
-			CastSpell(_R, target)
+			if QREADY and GetDistance(target) < QRANGE  and UseQ and ComboKey then
+			CastSpell(_Q, target)
 		end
 	end
 		
-		if WREADY and GetDistance(target) < WRANGE  and Configzedex.comboset.zedexw and Configzedex.combozedex then
-			CastSpell(_W, target.x, target.z)
+		if EREADY and WREADY and GetDistance(target) < ERANGE  and Configzedex.comboset.zedexw and Configzedex.combozedex then
+			CastSpell(_E, target.x, target.z)
 		end
 
-		if QREADY and GetDistance(target) < QRANGE  and Configzedex.combozedex then
+		if WREADY and GetDistance(target) < WRANGE  and Configzedex.combozedex then
 			CastSpell(_Q, target.x, target.z)
 		end
 
@@ -194,5 +207,41 @@ function OnDraw()
 	 
 		 if (Configzedex.circle.circlee) then
 		 DrawCircle(myHero.x, myHero.y, myHero.z, ERANGE, 0xFF00FF)
- end
+  end
+end
+
+function Farm()
+		enemyMinions:update()
+		for i, minion in ipairs(enemyMinions.objects) do
+			if FarmKey then
+				if ValidTarget(minion) and minion.health < 50 then
+					CastSpell(_Q, minion)
+				end
+			end
+		end
+	end
+	
+	--[[Minion Collsion]]--		
+		function minionCollision(target, range)
+        for _, minionObjectE in pairs(enemyMinions.objects) do
+                if target ~= nil and player:GetDistance(minionObjectE) < range then
+                        ex = player.x
+                        ez = player.z
+                        tx = target.x
+                        tz = target.z
+                        dx = ex - tx
+                        dz = ez - tz
+                        if dx ~= 0 then
+                                m = dz/dx
+                                c = ez - m*ex
+                        end
+                        mx = minionObjectE.x
+                        mz = minionObjectE.z
+                        distanc = (math.abs(mz - m*mx - c))/(math.sqrt(m*m+1))
+                        if math.sqrt((tx - ex)*(tx - ex) + (tz - ez)*(tz - ez)) > math.sqrt((tx - mx)*(tx - mx) + (tz - mz)*(tz - mz)) then
+                                return true
+                        end
+                end
+        end
+        return false
 end
