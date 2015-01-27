@@ -1,4 +1,3 @@
-
 -- Lib Updater
 local REQUIRED_LIBS = {
 	["SxOrbWalk"] = "https://raw.githubusercontent.com/Superx321/BoL/master/common/SxOrbWalk.lua"
@@ -81,6 +80,8 @@ Harass()
 Farm()
 -------
 AutoKS()
+-------
+Ready2(spell)
 end
 
 function MenuKata()
@@ -242,14 +243,6 @@ if Ready(_E) then
 combo5 = combo5 + edamage
 end
 return combo5
-end
-
-function Ready(spell)
-	if spell ~= nil then 
-		return myHero:CanUseSpell(spell) == READY 
-	else
-		return false
-	end
 end
 
 function Ready2(spell)
