@@ -65,7 +65,7 @@ if FileExist(LIB_PATH.."SxOrbWalk.lua") then
 	SxOrbloaded = true
 end 
 
-
+require 'spellDmg'
 
 --[[Slay Belle Katarina]]--
 
@@ -73,6 +73,7 @@ end
 
 if myHero.charName ~= "Katarina" then return end
 
+local enemyHeroes = GetEnemyHeroes()
 
 local UseQ = StayBelle.comboset.useq
 
@@ -94,6 +95,7 @@ local FarmKey = StayBelle.staykatafarm.farmkey
 
 local ComboKey = StayBelle.staycombo
 
+local AutoKSON = StayBelle.autokss.onoffks
 
 function OnLoad()
 Menu()
@@ -113,6 +115,8 @@ CoolDown()
 Harass()
 -------
 Farm()
+-------
+AutoKS()
 end
 
 function MenuKata()
@@ -126,9 +130,12 @@ function MenuKata()
      SxOrb:RegisterHotKey("Fight", StayBelle, "staycombo") 
 
 -------------------------------Farm--------------------------------------
- StayBelle:addSubMenu("Farm", "staykatafarm")
- StayBelle.staykatafarm:addParam("farmkey", "Farm Key", SCRIPT_PARAM_ONKEYTOGGLE, false, string.byte("Z"))
+      StayBelle:addSubMenu("Farm", "staykatafarm")
+      StayBelle.staykatafarm:addParam("farmkey", "Farm Key", SCRIPT_PARAM_ONKEYTOGGLE, false, string.byte("Z"))
 
+-------------------------------------------KS--------------------------------------------
+      StayBelle:addSubMenu("AutoKS", "autokss")
+      StayBelle.autokss:addParam("onoffks", "AutoKS", SCRIPT_PARAM_ONOFF, true)
 		 --------------------------------Harass-------------------------------------------
 		 StayBelle:addSubMenu("Harass", "harass")
 		 StayBelle.harass:addParam("harass", "Harass", SCRIPT_PARAM_ONKEYDOWN, false, string.byte("C"))
@@ -162,16 +169,17 @@ function Combo()
 		end
 	end
 		
-		if EREADY and WREADY and GetDistance(target) < ERANGE  and Configzedex.comboset.zedexw and Configzedex.combozedex then
+		if EREADY and WREADY and GetDistance(target) < ERANGE  and UseE and ComboKey then
 			CastSpell(_E, target.x, target.z)
 		end
 
-		if WREADY and GetDistance(target) < WRANGE  and Configzedex.combozedex then
-			CastSpell(_Q, target.x, target.z)
+		if WREADY and GetDistance(target) < WRANGE  and UseW and ComboKey then
+			CastSpell(_W)
 		end
 
-		if EREADY and GetDistance(target) < 290  and Configzedex.combozedex then
-	 		CastSpell(_E)
+		if RREADY and not QREADY and not WREADY and not EREADY and GetDistance(target) < RRANGE  and UseR and ComboKey then
+	 		CastSpell(_R)
+	 		ulti = true
 		end
 		
 end
@@ -198,14 +206,14 @@ if QREADY and GetDistance(target) < QRANGE  and Configzedex.harass.harass then
 	end
 		
 function OnDraw()
-     if (Configzedex.circle.circleq) then
+     if (StayBelle.circle.circleq) then
           DrawCircle(myHero.x, myHero.y, myHero.z, QRANGE, 0xFF00FF)
      end
-		 if (Configzedex.circle.circlew) then
+		 if (StayBelle.circle.circlew) then
 		 DrawCircle(myHero.x, myHero.y, myHero.z, WRANGE, 0xFF00FF)
 	 end
 	 
-		 if (Configzedex.circle.circlee) then
+		 if (StayBelle.circle.circlee) then
 		 DrawCircle(myHero.x, myHero.y, myHero.z, ERANGE, 0xFF00FF)
   end
 end
@@ -219,29 +227,71 @@ function Farm()
 				end
 			end
 		end
+end
+
+function OnAnimation(unit, animationName)
+       if unit == myHero then
+   if animationName == "Spell4" then
+    ulti = true
+  else
+    ulti = false
+  end
+ end
+end
+
+function AutoKS()
+     if AutoKSON and ts.target ~= nil then
+   for _, enemy in pairs(enemyHeroes) do
+    if not enemy.dead and GetDistance(enemy) < 700 and qweDMG(enemy) > enemy.health then
+   if Ready(_Q) and GetDistance(enemy) < 675 then 
+       CastSpell(_Q, enemy) 
+       end
+  if Ready(_E) then 
+      CastSpell(_E, enemy)
+      end
+ if Ready(_W) and GetDistance(enemy) < 375 then
+     CastSpell(_W, enemy)
+     end
+ 
+   end
+  end
+  end
+end
+
+  function qweDMG(enemy)
+  local distanceenemy = GetDistance(enemy)
+local qdamage = getDmg("Q",enemy,myHero)
+local qdamage2 = getDmg("Q",enemy,myHero,2)
+local wdamage = getDmg("W",enemy,myHero)
+local edamage = getDmg("E",enemy,myHero)
+local combo5 = 0
+if Ready(_Q) then
+combo5 = combo5 + qdamage
+if Ready(_E) then
+combo5 = combo5 + qdamage2
+end
+end
+if Ready(_W) then
+combo5 = combo5 + wdamage
+end
+if Ready(_E) then
+combo5 = combo5 + edamage
+end
+return combo5
+end
+
+function Ready(spell)
+	if spell ~= nil then 
+		return myHero:CanUseSpell(spell) == READY 
+	else
+		return false
 	end
-	
-	--[[Minion Collsion]]--		
-		function minionCollision(target, range)
-        for _, minionObjectE in pairs(enemyMinions.objects) do
-                if target ~= nil and player:GetDistance(minionObjectE) < range then
-                        ex = player.x
-                        ez = player.z
-                        tx = target.x
-                        tz = target.z
-                        dx = ex - tx
-                        dz = ez - tz
-                        if dx ~= 0 then
-                                m = dz/dx
-                                c = ez - m*ex
-                        end
-                        mx = minionObjectE.x
-                        mz = minionObjectE.z
-                        distanc = (math.abs(mz - m*mx - c))/(math.sqrt(m*m+1))
-                        if math.sqrt((tx - ex)*(tx - ex) + (tz - ez)*(tz - ez)) > math.sqrt((tx - mx)*(tx - mx) + (tz - mz)*(tz - mz)) then
-                                return true
-                        end
-                end
-        end
-        return false
+end
+
+function Ready2(spell)
+	if spell ~= nil then 
+		return myHero:CanUseSpell(spell) == READY 
+	else
+		return false
+	end
 end
