@@ -82,6 +82,8 @@ Farm()
 AutoKS()
 -------
 Ready2(spell)
+-------
+Ready2
 end
 
 function MenuKata()
