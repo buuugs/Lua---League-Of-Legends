@@ -21,6 +21,7 @@ function OnLoad()
     StayBelle()
 	PrintChat("SlayBelle Katarina Loaded")
 	IgniteSet()
+	Variables()
 end
 
 function StayBelle()
@@ -38,6 +39,7 @@ function StayBelle()
 		Config.Combo:addParam("UseW", "Use W", SCRIPT_PARAM_ONOFF, true) 
 		Config.Combo:addParam("UseE", "Use E", SCRIPT_PARAM_ONOFF, true) 
 		Config.Combo:addParam("UseR", "Use R", SCRIPT_PARAM_ONOFF, true)
+		Config.Combo:addParam("UseIts", "Use Items", SCRIPT_PARAM_ONOFF, true)
 		
 	Config:addSubMenu("Misc", "Misc")
 		Config.Misc:addParam("KSQ", "Auto KS with Q", SCRIPT_PARAM_ONOFF, true)
@@ -51,12 +53,13 @@ function StayBelle()
 		Config.Draw:addParam("DrawE", "Draw E range", SCRIPT_PARAM_ONOFF, true)
 	
 	Config:addSubMenu("Farm", "farm")
-	Config.farm:addParam("UseQFarm", "Use Q", SCRIPT_PARAM_ONOFF, false)
+	Config.farm:addParam("UseQFarm", "Use Q", SCRIPT_PARAM_ONOFF, true)
+	Config.farm:addParam("UseWFarm", "Use W - In Progress", SCRIPT_PARAM_ONOFF, false)
 	
 	
 	
 	ts = TargetSelector(TARGET_LESS_CAST_PRIORITY, Erange)
-	
+	enemyMinions = minionManager(MINION_ENEMY, Qrange, myHero, MINION_SORT_MAXHEALTH_DEC)
     ts.name = "Focus"
 	Config:addSubMenu("Target Selector", "TS")
 		Config.TS:addTS(ts)
@@ -68,11 +71,15 @@ end
 
 function OnTick()
 	Checks()
-	ComboKey()
 	KSLOAD()
-	HarassKey()
+  HarassKey()
  IgniteKS()
+ ComboKey()
+
+FarmKey()
+
 end
+
 
 function OnDraw()
 	if Config.Draw.DrawQ and QREADY and not myHero.dead then 
@@ -99,6 +106,13 @@ function Checks()
 end
 
 function Combo()
+
+if ValidTarget(unit) and unit ~= nil and unit.type == myHero.type then
+			if StayBelle.Combo.UseIts then
+				UseItems(unit)
+			end
+	end
+			
 	if ValidTarget(target) then
 		if QREADY and Config.Combo.UseQ then 
 			if GetDistance(target) <= Qrange then
@@ -143,7 +157,7 @@ function ComboKey()
     if Config.Keys.combokey then
 		Combo()
 	end
-	
+	end
 function IgniteKS()
     	if ValidTarget(target) then
 		if Config.Misc.KSIG then
@@ -173,7 +187,7 @@ end
 	
   end
  end
-end
+
 
 function KSQ(enemy)
 	if QREADY and getDmg("Q", enemy, myHero) > enemy.health then 
@@ -227,3 +241,72 @@ function HarassKey()
         Harass()
     end
    end
+	
+	function FarmQ()
+		enemyMinions:update()
+		for i, minion in ipairs(enemyMinions.objects) do
+			if Config.farm.UseQFarm then
+				if ValidTarget(minion) and GetDistance(minion) <= Qrange and QREADY and getDmg("Q", minion, myHero) > minion.health then
+					CastSpell(_Q, minion)
+				end
+			end
+		end
+	end
+
+	
+		function FarmW()
+		enemyMinions:update()
+		for i, minion in ipairs(enemyMinions.objects) do
+			if Config.farm.UseWFarm then
+				if ValidTarget(minion) and GetDistance(minion) <= Wrange and WREADY and getDmg("W", minion, myHero) > minion.health then
+					CastSpell(_W)
+				end
+			end
+		end
+	end
+	
+	
+	function FarmKey()
+			 if Config.Keys.farmkey then
+			 FarmQ()
+			 FarmW()
+			 end
+			 end
+	
+	
+	function UseItems(unit)
+	if unit ~= nil then
+		for _, item in pairs(Items) do
+			item.slot = GetInventorySlotItem(item.id)
+			if item.slot ~= nil then
+				if item.reqTarget and GetDistance(unit) < item.range then
+					CastSpell(item.slot, unit)
+				elseif not item.reqTarget then
+					if (GetDistance(unit) - getHitBoxRadius(myHero) - getHitBoxRadius(unit)) < 50 then
+						CastSpell(item.slot)
+					end
+				end
+			end
+		end
+	end
+end
+
+function getHitBoxRadius(target)
+    return GetDistance(target.minBBox, target.maxBBox)/2
+end
+
+function Variables()
+	
+	Items = {
+		BRK = { id = 3153, range = 450, reqTarget = true, slot = nil },
+		BWC = { id = 3144, range = 400, reqTarget = true, slot = nil },
+		DFG = { id = 3128, range = 750, reqTarget = true, slot = nil },
+		HGB = { id = 3146, range = 400, reqTarget = true, slot = nil },
+		RSH = { id = 3074, range = 350, reqTarget = false, slot = nil },
+		STD = { id = 3131, range = 350, reqTarget = false, slot = nil },
+		TMT = { id = 3077, range = 350, reqTarget = false, slot = nil },
+		YGB = { id = 3142, range = 350, reqTarget = false, slot = nil },
+		BFT = { id = 3188, range = 750, reqTarget = true, slot = nil },
+		RND = { id = 3143, range = 275, reqTarget = false, slot = nil }
+	}
+	end
