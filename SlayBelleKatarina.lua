@@ -1,39 +1,3 @@
--- AutoUpdater
-local version = "1.01"
-
-
-
-local UPDATE_SCRIPT_NAME = "SlayBelleKatarina"
-local UPDATE_HOST = "raw.github.com"
-local UPDATE_PATH = "/ajgoreq/BoL/master/SlayBelleKatarina.lua"
-local UPDATE_FILE_PATH = SCRIPT_PATH..GetCurrentEnv().FILE_NAME
-local UPDATE_URL = "https://"..UPDATE_HOST..UPDATE_PATH
-
-local ServerData
-if autoupdateenabled then
-	GetAsyncWebResult(UPDATE_HOST, UPDATE_PATH, function(d) ServerData = d end)
-	function update()
-		if ServerData ~= nil then
-			local ServerVersion
-			local send, tmp, sstart = nil, string.find(ServerData, "local version = \"")
-			if sstart then
-				send, tmp = string.find(ServerData, "\"", sstart+1)
-			end
-			if send then
-				ServerVersion = tonumber(string.sub(ServerData, sstart+1, send-1))
-			end
-
-			if ServerVersion ~= nil and tonumber(ServerVersion) ~= nil and tonumber(ServerVersion) > tonumber(version) then
-				DownloadFile(UPDATE_URL.."?nocache"..myHero.charName..os.clock(), UPDATE_FILE_PATH, function () print("<font color=\"#FF0000\"><b>"..UPDATE_SCRIPT_NAME..":</b> successfully updated. Reload (double F9) Please. ("..version.." => "..ServerVersion..")</font>") end)     
-			elseif ServerVersion then
-				print("<font color=\"#FF0000\"><b>"..UPDATE_SCRIPT_NAME..":</b> You have got the latest version: <u><b>"..ServerVersion.."</b></u></font>")
-			end		
-			ServerData = nil
-		end
-	end
-	AddTickCallback(update)
-end
-
 -- Lib Updater
 local REQUIRED_LIBS = {
 	["SxOrbWalk"] = "https://raw.githubusercontent.com/Superx321/BoL/master/common/SxOrbWalk.lua"
@@ -90,7 +54,6 @@ function OnLoad()
 	PrintChat("SlayBelle Katarina Loaded")
 	IgniteSet()
 	Variables()
-	AutoUpdate()
 end
 
 
@@ -109,7 +72,7 @@ function StayBelle()
 		Config.Combo:addParam("UseW", "Use W", SCRIPT_PARAM_ONOFF, true) 
 		Config.Combo:addParam("UseE", "Use E", SCRIPT_PARAM_ONOFF, true) 
 		Config.Combo:addParam("UseR", "Use R", SCRIPT_PARAM_ONOFF, true)
-		Config.Combo:addParam("UseEDel", "E Delay", SCRIPT_PARAM_ONOFF, true)
+		Config.Combo:addParam("UseEDel", "Humanizer", SCRIPT_PARAM_ONOFF, true)
 		Config.Combo:addParam("UseIts", "Use Items", SCRIPT_PARAM_ONOFF, true)
 		
 	Config:addSubMenu("Misc", "Misc")
@@ -117,7 +80,11 @@ function StayBelle()
 		Config.Misc:addParam("KSW", "Auto KS with W", SCRIPT_PARAM_ONOFF, true)
 		Config.Misc:addParam("KSE", "Auto KS with E", SCRIPT_PARAM_ONOFF, true)
 		Config.Misc:addParam("KSIG", "Auto KS using ignite", SCRIPT_PARAM_ONOFF, true)
-		
+		if VIP_USER then
+		Config:addSubMenu("Packets", "Packets")
+		Config.Packets:addParam("QPACK", "Q Packest", SCRIPT_PARAM_ONOFF, true)
+		Config.Packets:addParam("EPACK", "E Packest", SCRIPT_PARAM_ONOFF, true)
+		end
 	Config:addSubMenu("Drawings", "Draw")
 		Config.Draw:addParam("DrawQ", "Draw Q range", SCRIPT_PARAM_ONOFF, true)
 		Config.Draw:addParam("DrawW", "Draw W range", SCRIPT_PARAM_ONOFF, true)
@@ -127,15 +94,11 @@ function StayBelle()
 	Config.farm:addParam("UseQFarm", "Use Q", SCRIPT_PARAM_ONOFF, true)
 	Config.farm:addParam("UseWFarm", "Use W - In Progress", SCRIPT_PARAM_ONOFF, false)
 	
-	Config:addSubMenu("AutoUpdater", "AutoUpdate")
-	Config.AutoUpdate:addParam("autoon", "AutoUpdater (Reload)", SCRIPT_PARAM_ONOFF, true)
-	Config.AutoUpdate:addParam("autooni", "Reload : (F9)", SCRIPT_PARAM_ONOFF, true)
-	
-	
+
 	
 	ts = TargetSelector(TARGET_LESS_CAST_PRIORITY, Erange)
 	enemyMinions = minionManager(MINION_ENEMY, Qrange, myHero, MINION_SORT_MAXHEALTH_DEC)
-    ts.name = "Focus"
+    ts.name = "Belle"
 	Config:addSubMenu("Target Selector", "TS")
 		Config.TS:addTS(ts)
 	
@@ -191,13 +154,21 @@ if ValidTarget(unit) and unit ~= nil and unit.type == myHero.type then
 	if ValidTarget(target) then
 		if QREADY and Config.Combo.UseQ then 
 			if GetDistance(target) <= Qrange then
+			if VIP_USER and Config.Packets.QPACK then
+			Packet("S_CAST", {spellId = _Q, targetNetworkId = unit.networkID}):send()
+			else
 				CastSpell(_Q, target) 
 			end
 		end
+		end
 		if EREADY and Config.Combo.UseE then
 			if GetDistance(target) <= Erange then 
+			if VIP_USER and Config.Packets.EPACK then
+			Packet("S_CAST", {spellId = _E, targetNetworkId = unit.networkID}):send()
+			else
 				CastSpell(_E, target)
 			end
+ end
  end
 		if WREADY and Config.Combo.UseW then
 			if GetDistance(target) <= Wrange then
@@ -395,12 +366,5 @@ if lastE + eDelay > GetTickCount() then
 	end
 end
 
-function AutoUpdate()
 
-if Config.AutoUpdate.autoon then
 
-local autoupdateenabled = true
-else
-local autoupdateenabled = false
-end
-end
