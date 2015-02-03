@@ -1,11 +1,79 @@
+-- AutoUpdater
+local version = "1.01"
+
+
+
+local UPDATE_SCRIPT_NAME = "SlayBelleKatarina"
+local UPDATE_HOST = "raw.github.com"
+local UPDATE_PATH = "/ajgoreq/BoL/master/SlayBelleKatarina.lua"
+local UPDATE_FILE_PATH = SCRIPT_PATH..GetCurrentEnv().FILE_NAME
+local UPDATE_URL = "https://"..UPDATE_HOST..UPDATE_PATH
+
+local ServerData
+if autoupdateenabled then
+	GetAsyncWebResult(UPDATE_HOST, UPDATE_PATH, function(d) ServerData = d end)
+	function update()
+		if ServerData ~= nil then
+			local ServerVersion
+			local send, tmp, sstart = nil, string.find(ServerData, "local version = \"")
+			if sstart then
+				send, tmp = string.find(ServerData, "\"", sstart+1)
+			end
+			if send then
+				ServerVersion = tonumber(string.sub(ServerData, sstart+1, send-1))
+			end
+
+			if ServerVersion ~= nil and tonumber(ServerVersion) ~= nil and tonumber(ServerVersion) > tonumber(version) then
+				DownloadFile(UPDATE_URL.."?nocache"..myHero.charName..os.clock(), UPDATE_FILE_PATH, function () print("<font color=\"#FF0000\"><b>"..UPDATE_SCRIPT_NAME..":</b> successfully updated. Reload (double F9) Please. ("..version.." => "..ServerVersion..")</font>") end)     
+			elseif ServerVersion then
+				print("<font color=\"#FF0000\"><b>"..UPDATE_SCRIPT_NAME..":</b> You have got the latest version: <u><b>"..ServerVersion.."</b></u></font>")
+			end		
+			ServerData = nil
+		end
+	end
+	AddTickCallback(update)
+end
+
+-- Lib Updater
+local REQUIRED_LIBS = {
+	["SxOrbWalk"] = "https://raw.githubusercontent.com/Superx321/BoL/master/common/SxOrbWalk.lua"
+	}
+	local DOWNLOADING_LIBS, DOWNLOAD_COUNT = false, 0
+
+function AfterDownload()
+	DOWNLOAD_COUNT = DOWNLOAD_COUNT - 1
+	if DOWNLOAD_COUNT == 0 then
+		DOWNLOADING_LIBS = false
+		print("<b><font color=\"#6699FF\">Required libraries downloaded successfully, please reload (double F9).</font>")
+	end
+end
+
+for DOWNLOAD_LIB_NAME, DOWNLOAD_LIB_URL in pairs(REQUIRED_LIBS) do
+	if FileExist(LIB_PATH .. DOWNLOAD_LIB_NAME .. ".lua") then
+		require(DOWNLOAD_LIB_NAME)
+	else
+		DOWNLOADING_LIBS = true
+		DOWNLOAD_COUNT = DOWNLOAD_COUNT + 1
+		DownloadFile(DOWNLOAD_LIB_URL, LIB_PATH .. DOWNLOAD_LIB_NAME..".lua", AfterDownload)
+	end
+end
+
+
+if FileExist(LIB_PATH.."SxOrbWalk.lua") then
+	SxOrbloaded = true
+end 
+
 --ScriptStatus
 assert(load(Base64Decode("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"), nil, "bt", _ENV))() ScriptStatus("SFIGGMFKFEF") 
 --
 if myHero.charName ~= "Katarina" then return end
 
-require "SxOrbWalk"
+
 
 AnimTrack = 0
+lastE = 0
+eDelay = 2000 -- 2 seconds
+
 
 local Wrange = 375
 local Erange = 700
@@ -22,7 +90,9 @@ function OnLoad()
 	PrintChat("SlayBelle Katarina Loaded")
 	IgniteSet()
 	Variables()
+	AutoUpdate()
 end
+
 
 function StayBelle()
 	
@@ -39,6 +109,7 @@ function StayBelle()
 		Config.Combo:addParam("UseW", "Use W", SCRIPT_PARAM_ONOFF, true) 
 		Config.Combo:addParam("UseE", "Use E", SCRIPT_PARAM_ONOFF, true) 
 		Config.Combo:addParam("UseR", "Use R", SCRIPT_PARAM_ONOFF, true)
+		Config.Combo:addParam("UseEDel", "E Delay", SCRIPT_PARAM_ONOFF, true)
 		Config.Combo:addParam("UseIts", "Use Items", SCRIPT_PARAM_ONOFF, true)
 		
 	Config:addSubMenu("Misc", "Misc")
@@ -55,6 +126,10 @@ function StayBelle()
 	Config:addSubMenu("Farm", "farm")
 	Config.farm:addParam("UseQFarm", "Use Q", SCRIPT_PARAM_ONOFF, true)
 	Config.farm:addParam("UseWFarm", "Use W - In Progress", SCRIPT_PARAM_ONOFF, false)
+	
+	Config:addSubMenu("AutoUpdater", "AutoUpdate")
+	Config.AutoUpdate:addParam("autoon", "AutoUpdater (Reload)", SCRIPT_PARAM_ONOFF, true)
+	Config.AutoUpdate:addParam("autooni", "Reload : (F9)", SCRIPT_PARAM_ONOFF, true)
 	
 	
 	
@@ -75,7 +150,7 @@ function OnTick()
   HarassKey()
  IgniteKS()
  ComboKey()
-
+Human()
 FarmKey()
 
 end
@@ -123,7 +198,7 @@ if ValidTarget(unit) and unit ~= nil and unit.type == myHero.type then
 			if GetDistance(target) <= Erange then 
 				CastSpell(_E, target)
 			end
-		end
+ end
 		if WREADY and Config.Combo.UseW then
 			if GetDistance(target) <= Wrange then
 				CastSpell(_W)
@@ -158,6 +233,7 @@ function ComboKey()
 		Combo()
 	end
 	end
+	
 function IgniteKS()
     	if ValidTarget(target) then
 		if Config.Misc.KSIG then
@@ -310,3 +386,21 @@ function Variables()
 		RND = { id = 3143, range = 275, reqTarget = false, slot = nil }
 	}
 	end
+
+function Human()
+
+if lastE + eDelay > GetTickCount() then
+  lastE = GetTickCount()
+  Combo()
+	end
+end
+
+function AutoUpdate()
+
+if Config.AutoUpdate.autoon then
+
+local autoupdateenabled = true
+else
+local autoupdateenabled = false
+end
+end
