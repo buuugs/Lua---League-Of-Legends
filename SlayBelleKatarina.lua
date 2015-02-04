@@ -27,16 +27,15 @@ if FileExist(LIB_PATH.."SxOrbWalk.lua") then
 	SxOrbloaded = true
 end 
 
+if myHero.charName ~= "Katarina" then return end
+
 --ScriptStatus
 assert(load(Base64Decode("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"), nil, "bt", _ENV))() ScriptStatus("SFIGGMFKFEF") 
 --
-if myHero.charName ~= "Katarina" then return end
-
-
 
 AnimTrack = 0
 lastE = 0
-eDelay = 2000 -- 2 seconds
+eDelay = 3500 -- 2 seconds
 
 
 local Wrange = 375
@@ -49,12 +48,24 @@ local iDMG = 0
 local ignite, iDMG = nil, 0 
 local QREADY, WREADY, EREADY, RREADY = false
 
+--[[    Ward Jump       ]]--
+local WardTable = {}
+local SWard, VWard, SStone, RSStone, Wriggles = 2044, 2043, 2049, 2045, 3154
+local SWardSlot, VWardSlot, SStoneSlot, RSStoneSlot, WrigglesSlot = nil, nil, nil, nil, nil
+local jumpReady = false
+local jumpRange = 700
+local wardRange = 600
+local jumpDelay = 0
+
 function OnLoad()
     StayBelle()
 	PrintChat("SlayBelle Katarina Loaded")
 	IgniteSet()
-	Variables()
-end
+	for i = 0, objManager.maxObjects, 1 do
+                local object = objManager:GetObject(i)
+                        if WardCheck(object) then table.insert(WardTable, object) end
+  end  
+	end
 
 
 function StayBelle()
@@ -66,6 +77,7 @@ function StayBelle()
 		Config.Keys:addParam("combokey", "Combo key", SCRIPT_PARAM_ONKEYDOWN, false, 32)
 		Config.Keys:addParam("harass", "Harass Key", SCRIPT_PARAM_ONKEYDOWN, false, 67)
 	Config.Keys:addParam("farmkey", "Farm On/Off", SCRIPT_PARAM_ONKEYTOGGLE, false, string.byte("Z"))
+	Config.Keys:addParam("wardjump", "Ward Jump", SCRIPT_PARAM_ONKEYDOWN, false, string.byte("G"))
 	    
 	Config:addSubMenu("Combo Settings", "Combo")
 		Config.Combo:addParam("UseQ", "Use Q", SCRIPT_PARAM_ONOFF, true)
@@ -73,7 +85,7 @@ function StayBelle()
 		Config.Combo:addParam("UseE", "Use E", SCRIPT_PARAM_ONOFF, true) 
 		Config.Combo:addParam("UseR", "Use R", SCRIPT_PARAM_ONOFF, true)
 		Config.Combo:addParam("UseEDel", "Humanizer", SCRIPT_PARAM_ONOFF, true)
-		Config.Combo:addParam("UseIts", "Use Items", SCRIPT_PARAM_ONOFF, true)
+		Config.Combo:addParam("UseIts", "Use Items (Not Work)", SCRIPT_PARAM_ONOFF, false)
 		
 	Config:addSubMenu("Misc", "Misc")
 		Config.Misc:addParam("KSQ", "Auto KS with Q", SCRIPT_PARAM_ONOFF, true)
@@ -82,8 +94,8 @@ function StayBelle()
 		Config.Misc:addParam("KSIG", "Auto KS using ignite", SCRIPT_PARAM_ONOFF, true)
 		if VIP_USER then
 		Config:addSubMenu("Packets", "Packets")
-		Config.Packets:addParam("QPACK", "Q Packest", SCRIPT_PARAM_ONOFF, true)
-		Config.Packets:addParam("EPACK", "E Packest", SCRIPT_PARAM_ONOFF, true)
+		Config.Packets:addParam("QPACK", "Q Packest", SCRIPT_PARAM_ONOFF, false)
+		Config.Packets:addParam("EPACK", "E Packest", SCRIPT_PARAM_ONOFF, false)
 		end
 	Config:addSubMenu("Drawings", "Draw")
 		Config.Draw:addParam("DrawQ", "Draw Q range", SCRIPT_PARAM_ONOFF, true)
@@ -116,6 +128,13 @@ function OnTick()
 Human()
 FarmKey()
 
+--[[    Ward Jump       ]]--
+        if jumpReady == true then
+                JumpReady()
+        end
+        if Config.Keys.wardjump then
+                JumpCheck()
+        end
 end
 
 
@@ -145,17 +164,11 @@ end
 
 function Combo()
 
-if ValidTarget(unit) and unit ~= nil and unit.type == myHero.type then
-			if StayBelle.Combo.UseIts then
-				UseItems(unit)
-			end
-	end
-			
 	if ValidTarget(target) then
 		if QREADY and Config.Combo.UseQ then 
 			if GetDistance(target) <= Qrange then
 			if VIP_USER and Config.Packets.QPACK then
-			Packet("S_CAST", {spellId = _Q, targetNetworkId = unit.networkID}):send()
+			Packet("S_CAST", {spellId = _Q, targetNetworkId = target.networkID}):send()
 			else
 				CastSpell(_Q, target) 
 			end
@@ -164,7 +177,7 @@ if ValidTarget(unit) and unit ~= nil and unit.type == myHero.type then
 		if EREADY and Config.Combo.UseE then
 			if GetDistance(target) <= Erange then 
 			if VIP_USER and Config.Packets.EPACK then
-			Packet("S_CAST", {spellId = _E, targetNetworkId = unit.networkID}):send()
+			Packet("S_CAST", {spellId = _E, targetNetworkId = target.networkID}):send()
 			else
 				CastSpell(_E, target)
 			end
@@ -320,43 +333,11 @@ function HarassKey()
 			 end
 			 end
 	
-	
-	function UseItems(unit)
-	if unit ~= nil then
-		for _, item in pairs(Items) do
-			item.slot = GetInventorySlotItem(item.id)
-			if item.slot ~= nil then
-				if item.reqTarget and GetDistance(unit) < item.range then
-					CastSpell(item.slot, unit)
-				elseif not item.reqTarget then
-					if (GetDistance(unit) - getHitBoxRadius(myHero) - getHitBoxRadius(unit)) < 50 then
-						CastSpell(item.slot)
-					end
-				end
-			end
-		end
-	end
-end
 
 function getHitBoxRadius(target)
     return GetDistance(target.minBBox, target.maxBBox)/2
 end
 
-function Variables()
-	
-	Items = {
-		BRK = { id = 3153, range = 450, reqTarget = true, slot = nil },
-		BWC = { id = 3144, range = 400, reqTarget = true, slot = nil },
-		DFG = { id = 3128, range = 750, reqTarget = true, slot = nil },
-		HGB = { id = 3146, range = 400, reqTarget = true, slot = nil },
-		RSH = { id = 3074, range = 350, reqTarget = false, slot = nil },
-		STD = { id = 3131, range = 350, reqTarget = false, slot = nil },
-		TMT = { id = 3077, range = 350, reqTarget = false, slot = nil },
-		YGB = { id = 3142, range = 350, reqTarget = false, slot = nil },
-		BFT = { id = 3188, range = 750, reqTarget = true, slot = nil },
-		RND = { id = 3143, range = 275, reqTarget = false, slot = nil }
-	}
-	end
 
 function Human()
 
@@ -366,5 +347,62 @@ if lastE + eDelay > GetTickCount() then
 	end
 end
 
+--[[    Ward Jump       ]]--
+function WardCheck(object)
+        return object and object.valid and (string.find(object.name, "Ward") ~= nil or string.find(object.name, "Wriggle") ~= nil)
+end
+ 
+function JumpReady()
+        if jumpReady == true then
+                for i,object in ipairs(WardTable) do
+                        if object ~= nil and object.valid and math.sqrt((object.x-mousePos.x)^2+(object.z-mousePos.z)^2) < 150 then
+                                CastSpell(_W, object)
+                                jumpReady = false
+                        end
+   end
+        end
+end
+ 
+function JumpCheck()
+        local x = mousePos.x
+        local z = mousePos.z
+        local dx = x - player.x
+        local dz = z - player.z
+        local rad1 = math.atan2(dz, dx)
+       
+        SWardSlot = GetInventorySlotItem(SWard)
+        VWardSlot = GetInventorySlotItem(VWard)
+        SStoneSlot = GetInventorySlotItem(SStone)
+        RSStoneSlot = GetInventorySlotItem(RSStone)
+        WrigglesSlot = GetInventorySlotItem(Wriggles)
+ 
+        if RSStoneSlot ~= nil and CanUseSpell(RSStoneSlot) == READY then
+                wardSlot = RSStoneSlot
+        elseif SStoneSlot ~= nil and CanUseSpell(SStoneSlot) == READY then
+                wardSlot = SStoneSlot
+        elseif SWardSlot ~= nil then
+                wardSlot = SWardSlot
+        elseif VWardSlot ~= nil then
+                wardSlot = VWardSlot
+        elseif WrigglesSlot ~= nil then
+                wardSlot = WrigglesSlot
+        else wardSlot = nil
+        end
+ 
+        if wardSlot ~= nil then
+                local dx1 = jumpRange*math.cos(rad1)
+                local dz1 = jumpRange*math.sin(rad1)
+                local x1 = x - dx1
+                local z1 = z - dz1
+                if EREADY and math.sqrt(dx*dx + dz*dz) <= 600 then
+                        CastSpell(wardSlot, x, z)
+                        jumpReady = true
+                elseif EREADY then player:MoveTo(x1, z1)
+                        else myHero:StopPosition()
+                end
+        end
+end
 
-
+function OnCreateObj(object)
+  if WardCheck(object) then table.insert(WardTable, object) end
+end
