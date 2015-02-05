@@ -89,7 +89,7 @@ function StayBelle()
 		Config.Combo:addParam("UseEDel", "Humanizer", SCRIPT_PARAM_ONOFF, true)
 		Config.Combo:addParam("UseIts", "Use Items (Not Work)", SCRIPT_PARAM_ONOFF, false)
 		Config.Combo:addParam("info4", " >> Please Wait to items. ", SCRIPT_PARAM_INFO, "")
-		Config.Combo:addParam("info4", " >> Items avalible in patch ", SCRIPT_PARAM_INFO, "1.6")
+		Config.Combo:addParam("info4", " >> Items avalible in patch ", SCRIPT_PARAM_INFO, "1.7")
 		
 	Config:addSubMenu("Misc", "Misc")
 		Config.Misc:addParam("KSQ", "Auto KS with Q", SCRIPT_PARAM_ONOFF, true)
@@ -114,7 +114,7 @@ function StayBelle()
 	Config.Credits:addParam("info", " >> Autor : ", SCRIPT_PARAM_INFO, "Ajgoreq")
 	Config.Credits:addParam("info2", " >> Helpers : ", SCRIPT_PARAM_INFO, "Draconis")
 	Config.Credits:addParam("info3", "", SCRIPT_PARAM_INFO, "Bilbao")
-		Config.:addParam("info4", " >> Version ", SCRIPT_PARAM_INFO, "1.5")
+		Config.:addParam("info4", " >> Version ", SCRIPT_PARAM_INFO, "1.6")
 
 	
 	ts = TargetSelector(TARGET_LESS_CAST_PRIORITY, Erange)
