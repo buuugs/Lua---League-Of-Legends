@@ -114,7 +114,7 @@ function StayBelle()
 	Config.Credits:addParam("info", " >> Autor : ", SCRIPT_PARAM_INFO, "Ajgoreq")
 	Config.Credits:addParam("info2", " >> Helpers : ", SCRIPT_PARAM_INFO, "Draconis")
 	Config.Credits:addParam("info3", "", SCRIPT_PARAM_INFO, "Bilbao")
-		Config.:addParam("info4", " >> Version ", SCRIPT_PARAM_INFO, "1.6")
+		Config:addParam("info4", " >> Version ", SCRIPT_PARAM_INFO, "1.6")
 
 	
 	ts = TargetSelector(TARGET_LESS_CAST_PRIORITY, Erange)
