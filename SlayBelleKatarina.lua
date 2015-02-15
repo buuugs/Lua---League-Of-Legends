@@ -29,14 +29,14 @@ end
 
 if myHero.charName ~= "Katarina" then return end
 
-
+local e = {}
 --ScriptStatus
 assert(load(Base64Decode("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"), nil, "bt", _ENV))() ScriptStatus("SFIGGMFKFEF") 
 --
 
 AnimTrack = 0
 lastE = 0
-eDelay = 3500 -- 2 seconds
+eDelay = 3500 -- 3,5 seconds
 
 
 local Wrange = 375
@@ -61,20 +61,23 @@ local jumpDelay = 0
 function OnLoad()
 
 StayBelle()
- print("<b><font color=\"#FF001E\">Slay Belle Katarina : </font></b>")
+ print("<b><font color=\"#FF001E\">>>>..::Slay Belle Katarina::..<<<<</font></b>")
 IgniteSet()
 Variables()
+for i, enemy in ipairs(GetEnemyHeroes()) do
+		table.insert(e, enemy)
+	end
+
 for i = 0, objManager.maxObjects, 1 do
 local object = objManager:GetObject(i)
 if WardCheck(object) then table.insert(WardTable, object) end
 end 
 end
 
-
 function StayBelle()
 
 
-Config = scriptConfig("Katarina - SlayBelle", "SlayBelle")
+Config = scriptConfig("Katarina - SlayBelle Rework By Ajgoreq", "SlayBelle")
 
 Config:addSubMenu("Key Settings", "Keys")
 Config.Keys:addParam("combokey", "Combo key", SCRIPT_PARAM_ONKEYDOWN, false, 32)
@@ -106,13 +109,13 @@ Config.Draw:addParam("DrawE", "Draw E range", SCRIPT_PARAM_ONOFF, true)
 
 Config:addSubMenu("Farm", "farm")
 Config.farm:addParam("UseQFarm", "Use Q", SCRIPT_PARAM_ONOFF, true)
-Config.farm:addParam("UseWFarm", "Use W - In Progress", SCRIPT_PARAM_ONOFF, false)
+Config.farm:addParam("UseWFarm", "Use W", SCRIPT_PARAM_ONOFF, false)
 
 Config:addSubMenu("Credits", "Credits")
 Config.Credits:addParam("info", " >> Autor : ", SCRIPT_PARAM_INFO, "Ajgoreq")
 Config.Credits:addParam("info2", " >> Helpers : ", SCRIPT_PARAM_INFO, "Draconis")
 Config.Credits:addParam("info3", "", SCRIPT_PARAM_INFO, "Bilbao")
-Config:addParam("info4", " >> Version ", SCRIPT_PARAM_INFO, "1.7")
+Config:addParam("info4", " >> Version ", SCRIPT_PARAM_INFO, "1.0-Rework")
 
 
 ts = TargetSelector(TARGET_LESS_CAST_PRIORITY, Erange)
@@ -128,13 +131,9 @@ end
 
 function OnTick()
 Checks()
-KSLOAD()
-HarassKey()
 IgniteKS()
-ComboKey()
 Human()
-FarmKey()
-
+Jump()
 --[[ Ward Jump ]]--
 --[[ if jumpReady == true then
 JumpReady()
@@ -147,17 +146,28 @@ moveToCursor()
 local WardPos = GetDistanceSqr(mousePos) <= Erange * Erange and mousePos or getMousePos()
 wardJump(WardPos.x, WardPos.z)
 
-end
-end
+	end
+	-----Combo-----
+	if Config.Keys.combokey then
+	Combo()
+	end
+	----Harass-----
+	if Config.Keys.harass then
+	Harass()
+	end
+	---Farm-----
+	if Config.Keys.farmkey then
+	Farm()
+	end
 
-
+end
 
 
 function moveToCursor()
 if GetDistance(mousePos) then
 local moveToPos = myHero + (Vector(mousePos) - myHero):normalized()*300
 myHero:MoveTo(moveToPos.x, moveToPos.z)
-end 
+	end 
 end
 
 
@@ -170,7 +180,7 @@ DrawCircle(myHero.x, myHero.y, myHero.z, Wrange, 0x00FF00)
 end
 if Config.Draw.DrawE and EREADY and not myHero.dead then 
 DrawCircle(myHero.x, myHero.y, myHero.z, Erange, 0x00FF00)
-end
+	end
 end
 
 
@@ -200,37 +210,54 @@ end
 
 function Combo()
 
-if ValidTarget(target) then
-if QREADY and Config.Combo.UseQ then 
-if GetDistance(target) <= Qrange then
-if VIP_USER and Config.Packets.QPACK then
-Packet("S_CAST", {spellId = _Q, targetNetworkId = target.networkID}):send()
-else
-CastSpell(_Q, target) 
+	if ValidTarget(target) then
+CastQ()
+CastE()
+CastW()
+CastR()
+	end
 end
+
+function CastQ()
+				if QREADY and Config.Combo.UseQ then 
+		if GetDistance(target) <= Qrange then
+	if VIP_USER and Config.Packets.QPACK then
+	Packet("S_CAST", {spellId = _Q, targetNetworkId = target.networkID}):send()
+	else
+	CastSpell(_Q, target) 
+			end
+		end
+	end
 end
+
+function CastW()
+	if WREADY and Config.Combo.UseW then
+	if GetDistance(target) <= Wrange then
+		CastSpell(_W)
+			end
+		end
+	end
+
+function CastE()
+			if EREADY and Config.Combo.UseE then
+		if GetDistance(target) <= Erange then 
+	if VIP_USER and Config.Packets.EPACK then
+	Packet("S_CAST", {spellId = _E, targetNetworkId = target.networkID}):send()
+	else
+	CastSpell(_E, target)
+			end
+		end
+	end
 end
-if EREADY and Config.Combo.UseE then
-if GetDistance(target) <= Erange then 
-if VIP_USER and Config.Packets.EPACK then
-Packet("S_CAST", {spellId = _E, targetNetworkId = target.networkID}):send()
-else
-CastSpell(_E, target)
+
+function CastR()
+		if RREADY and not QREADY and not WREADY and not EREADY and Config.Combo.UseR then
+	if GetDistance(target) <= Rrange then
+	CastSpell(_R)
+		end
+	end
 end
-end
-end
-if WREADY and Config.Combo.UseW then
-if GetDistance(target) <= Wrange then
-CastSpell(_W)
-end
-end
-if RREADY and not QREADY and not WREADY and not EREADY and Config.Combo.UseR then
-if GetDistance(target) <= Rrange then
-CastSpell(_R)
-end
-end
-end
-end
+
 
 function AutoIgnite(enemy)
 iDmg = ((IREADY and getDmg("IGNITE", enemy, myHero)) or 0)
@@ -248,69 +275,44 @@ ignite = SUMMONER_2
 end
 end
 
-function ComboKey()
-if Config.Keys.combokey then
-Combo()
-end
-end
+
 
 function IgniteKS()
 if ValidTarget(target) then
 if Config.Misc.KSIG then
 AutoIgnite(target)
-end
-end
-end
-
-function KSLOAD()
-if ValidTarget(target) then
-if Config.Misc.KSQ then
-KSQ(target)
-end
-
-
-if Config.Misc.KSW then
-KSW(target)
-end
-
-
-if Config.Misc.KSE then
-KSE(target)
 		end
 	end
 end
 
-function KSQ(enemy)
-if QREADY and getDmg("Q", enemy, myHero) > enemy.health then 
-if GetDistance(enemy) <= Qrange then 
-CastSpell(_Q, enemy)
-end
-end
-end
-
-function KSW(enemy)
-if WREADY and getDmg("W", enemy, myHero) > enemy.health then 
-if GetDistance(enemy) <= Wrange then 
-CastSpell(_W, enemy)
-end
-end
-end
-
-function KSE(enemy)
-if EREADY and getDmg("E", enemy, myHero) > enemy.health then 
-if GetDistance(enemy) <= Erange then 
-CastSpell(_E, enemy)
-end
-end
+function KillSteal()
+	for i, enemy in ipairs(e) do
+		if ValidTarget(enemy) and GetDistance(enemy) < 700 then
+		if Config.Misc.KSQ then
+			if QReady and getDmg("Q", enemy, myHero) > enemy.health then
+				CastSpell(_Q, enemy)
+				end
+			end
+			if Config.Misc.KSW then
+			if WReady and getDmg("W", enemy, myHero) > enemy.health then
+				CastSpell(_W)
+				end
+			end
+				if Config.Misc.KSE then
+			if EReady and getDmg("E", enemy, myHero) > enemy.health then
+				CastSpell(_E, enemy)
+				end
+			end
+		end
+	end
 end
 
 
 function OnAnimation(Unit, Animation)
 if Unit.isMe and (Animation == "Spell4" or Animation == "Spell4_Loop") then
 AnimTrack = GetTickCount() + 50 + GetLatency()
+	end
 end
-end
-
 
 function IsChanneling()
 return AnimTrack > GetTickCount()
@@ -323,46 +325,29 @@ if not target then return end
 if ValidTarget(target) then
 if QREADY and GetDistance(target) < Qrange then
 CastSpell(_Q, target)
-end
-end
-end
-
-function HarassKey()
-if Config.Keys.harass then
-Harass()
-end
+		end
+	end
 end
 
-function FarmQ()
+function Farm()
 enemyMinions:update()
-for i, minion in ipairs(enemyMinions.objects) do
-if Config.farm.UseQFarm then
-if ValidTarget(minion) and GetDistance(minion) <= Qrange and QREADY and getDmg("Q", minion, myHero) > minion.health then
+		for i, minion in ipairs(enemyMinions.objects) do
+	if Config.farm.UseQFarm then
+	if ValidTarget(minion) and GetDistance(minion) <= Qrange and QREADY and getDmg("Q", minion, myHero) > minion.health then
 CastSpell(_Q, minion)
-end
-end
-end
-end
-
-
-function FarmW()
-enemyMinions:update()
-for i, minion in ipairs(enemyMinions.objects) do
+			end
+		end
+	end
+	
+	for i, minion in ipairs(enemyMinions.objects) do
 if Config.farm.UseWFarm then
 if ValidTarget(minion) and GetDistance(minion) <= Wrange and WREADY and getDmg("W", minion, myHero) > minion.health then
 CastSpell(_W)
-end
-end
-end
+			end
+		end
+	end
 end
 
-
-function FarmKey()
-if Config.Keys.farmkey then
-FarmQ()
-FarmW()
-end
-end
 
 
 function getHitBoxRadius(target)
@@ -375,9 +360,9 @@ function Human()
 if lastE + eDelay > GetTickCount() then
 lastE = GetTickCount()
 Combo()
+	end
 end
-end
-
+------------------------------------Ward Jump-------------------------------------------
 --[[ Ward Jump ]]--
 function WardCheck(object)
 return object and object.valid and (string.find(object.name, "Ward") ~= nil or string.find(object.name, "Wriggle") ~= nil)
@@ -494,11 +479,11 @@ local dz1 = jumpRange*math.sin(rad1)
 local x1 = x - dx1
 local z1 = z - dz1
 if EREADY and math.sqrt(dx*dx + dz*dz) <= 600 then
-CastSpell(wardSlot, x, z)
+CastSpell(wardSlot, mousePos.x, mousePos.z)
 SkillWard.lastJump = GetTickCount() + 2000
 --wardSlot= nil
-end
-end
+		end
+	end
 end
 
 function OnCreateObj(obj)
@@ -523,3 +508,25 @@ local MousePos = Vector(mousePos.x, mousePos.y, mousePos.z)
 
 return MyPos - (MyPos - MousePos):normalized() * SkillWard.range
 end
+function Jump()
+if RSStoneSlot ~= nil and CanUseSpell(RSStoneSlot) == READY then
+wardSlot = RSStoneSlot
+elseif SStoneSlot ~= nil and CanUseSpell(SStoneSlot) == READY then
+wardSlot = SStoneSlot
+elseif SWardSlot ~= nil then
+wardSlot = SWardSlot
+elseif VWardSlot ~= nil then
+wardSlot = VWardSlot
+elseif WrigglesSlot ~= nil then
+wardSlot = WrigglesSlot
+
+end
+
+if wardSlot ~= nil then
+if EREADY then
+CastSpell(wardSlot, mousePos.x, mousePos.z)
+SkillWard.lastJump = GetTickCount() + 2000
+--wardSlot= nil
+		end
+	end
+	end
