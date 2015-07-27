@@ -49,41 +49,36 @@ local iDMG = 0
 local ignite, iDMG = nil, 0 
 local QREADY, WREADY, EREADY, RREADY = false
 
---[[ Ward Jump ]]--
-local WardTable = {}
-local SWard, VWard, SStone, RSStone, Wriggles = 3040, 2043, 2049, 2045, 3154
-local SWardSlot, VWardSlot, SStoneSlot, RSStoneSlot, WrigglesSlot = nil, nil, nil, nil, nil
-local jumpReady = false
-local jumpRange = 700
-local wardRange = 600
-local jumpDelay = 0
 
 function OnLoad()
 
 StayBelle()
  print("<b><font color=\"#FF001E\">>>>..::Slay Belle Katarina::..<<<<</font></b>")
+ print("<b><font color=\"#FF001E\">>>>By Igoreeeku<<<<</font></b>")
+ print("<b><font color=\"#FF001E\">>>>8.0 Version<<<<</font></b>")
+ print("<b><font color=\"#FF001E\">>>>Good Luck<<<<</font></b>")
 IgniteSet()
 Variables()
+
+AddMsgCallback(CustomOnWndMsg)
+	AddDrawCallback(CustomOnDraw)		
+	AddProcessSpellCallback(CustomOnProcessSpell)
+	AddTickCallback(CustomOnTick)
+	
 for i, enemy in ipairs(GetEnemyHeroes()) do
 		table.insert(e, enemy)
 	end
-
-for i = 0, objManager.maxObjects, 1 do
-local object = objManager:GetObject(i)
-if WardCheck(object) then table.insert(WardTable, object) end
-end 
 end
 
 function StayBelle()
 
 
-Config = scriptConfig("Katarina - SlayBelle Rework By Ajgoreq", "SlayBelle")
+Config = scriptConfig("Katarina - SlayBelle By Igoreeeku", "SlayBelle")
 
 Config:addSubMenu("Key Settings", "Keys")
 Config.Keys:addParam("combokey", "Combo key", SCRIPT_PARAM_ONKEYDOWN, false, 32)
 Config.Keys:addParam("harass", "Harass Key", SCRIPT_PARAM_ONKEYDOWN, false, 67)
 Config.Keys:addParam("farmkey", "Farm On/Off", SCRIPT_PARAM_ONKEYTOGGLE, false, string.byte("Z"))
-Config.Keys:addParam("wardjump", "Ward Jump", SCRIPT_PARAM_ONKEYDOWN, false, string.byte("G"))
 
 Config:addSubMenu("Combo Settings", "Combo")
 Config.Combo:addParam("UseQ", "Use Q", SCRIPT_PARAM_ONOFF, true)
@@ -99,10 +94,12 @@ Config.Misc:addParam("KSE", "Auto KS with E", SCRIPT_PARAM_ONOFF, true)
 Config.Misc:addParam("KSIG", "Auto KS using ignite", SCRIPT_PARAM_ONOFF, true)
 if VIP_USER then
 Config:addSubMenu("Packets", "Packets")
-Config.Packets:addParam("QPACK", "Q Packest", SCRIPT_PARAM_ONOFF, false)
-Config.Packets:addParam("EPACK", "E Packest", SCRIPT_PARAM_ONOFF, false)
+Config.Packets:addParam("QPACK", "Q Packets", SCRIPT_PARAM_ONOFF, false)
+Config.Packets:addParam("WPACK", "W Packets", SCRIPT_PARAM_ONOFF, false)
+Config.Packets:addParam("EPACK", "E Packets", SCRIPT_PARAM_ONOFF, false)
 end
 Config:addSubMenu("Drawings", "Draw")
+Config.Draw:addParam("drawDD", "Draw Dmg Text", SCRIPT_PARAM_ONOFF, true)
 Config.Draw:addParam("DrawQ", "Draw Q range", SCRIPT_PARAM_ONOFF, true)
 Config.Draw:addParam("DrawW", "Draw W range", SCRIPT_PARAM_ONOFF, true)
 Config.Draw:addParam("DrawE", "Draw E range", SCRIPT_PARAM_ONOFF, true)
@@ -111,10 +108,11 @@ Config:addSubMenu("Farm", "farm")
 Config.farm:addParam("UseQFarm", "Use Q", SCRIPT_PARAM_ONOFF, true)
 Config.farm:addParam("UseWFarm", "Use W", SCRIPT_PARAM_ONOFF, false)
 
-Config:addSubMenu("Credits", "Credits")
-Config.Credits:addParam("info", " >> Autor : ", SCRIPT_PARAM_INFO, "Ajgoreq")
 
-Config:addParam("info4", " >> Version ", SCRIPT_PARAM_INFO, "7.8")
+Config.Credits:addParam("info", " >> Autor : ", SCRIPT_PARAM_INFO, "Ajgoreq")
+Config.Credits:addParam("info8", " >> Tester : ", SCRIPT_PARAM_INFO, "venemo")
+
+Config:addParam("info4", " >> Version ", SCRIPT_PARAM_INFO, "8.0")
 
 
 ts = TargetSelector(TARGET_LESS_CAST_PRIORITY, Erange)
@@ -126,26 +124,19 @@ Config.TS:addTS(ts)
 Config:addSubMenu("Orbwalker", "SxOrb")
 SxOrb:LoadToMenu(Config.SxOrb)
 
+	Config.Keys:permaShow("combokey")
+  Config.Keys:permaShow("harass")
+	Config.Keys:permaShow("farmkey")
+
 end
 
 function OnTick()
 Checks()
 IgniteKS()
 Human()
-Jump()
---[[ Ward Jump ]]--
---[[ if jumpReady == true then
-JumpReady()
-end]]
-if Config.Keys.wardjump then
-if GetTickCount() >= SkillWard.lastJump then
-JumpCheck()
-end
-moveToCursor()
-local WardPos = GetDistanceSqr(mousePos) <= Erange * Erange and mousePos or getMousePos()
-wardJump(WardPos.x, WardPos.z)
+KillSteal()
 
-	end
+killstring = {}
 	-----Combo-----
 	if Config.Keys.combokey then
 	Combo()
@@ -162,12 +153,6 @@ wardJump(WardPos.x, WardPos.z)
 end
 
 
-function moveToCursor()
-if GetDistance(mousePos) then
-local moveToPos = myHero + (Vector(mousePos) - myHero):normalized()*300
-myHero:MoveTo(moveToPos.x, moveToPos.z)
-	end 
-end
 
 
 function OnDraw()
@@ -180,18 +165,17 @@ end
 if Config.Draw.DrawE and EREADY and not myHero.dead then 
 DrawCircle(myHero.x, myHero.y, myHero.z, Erange, 0x00FF00)
 	end
-end
+	end
 
 
 function Variables()
-Wards = {}
+
 allyHeroes = GetAllyHeroes()
 enemyHeroes = GetEnemyHeroes()
 enemyMinions = minionManager(MINION_ENEMY, Erange, player, MINION_SORT_HEALTH_ASC)
 allyMinions = minionManager(MINION_ALLY, Erange, player, MINION_SORT_HEALTH_ASC)
 
-SkillWard = {range = 600, lastJump = 0, itemSlot = nil }
-JungleMobs = {}
+killstring = {}
 end
 
 function Checks()
@@ -232,11 +216,14 @@ end
 function CastW()
 	if WREADY and Config.Combo.UseW then
 	if GetDistance(target) <= Wrange then
+	if VIP_USER and Config.Packets.WPACK then
+	Packet("S_CAST", {spellId = _W, targetNetworkId = target.networkID}):send()
+	else
 		CastSpell(_W)
 			end
 		end
 	end
-
+end
 function CastE()
 			if EREADY and Config.Combo.UseE then
 		if GetDistance(target) <= Erange then 
@@ -361,171 +348,57 @@ lastE = GetTickCount()
 Combo()
 	end
 end
-------------------------------------Ward Jump-------------------------------------------
---[[ Ward Jump ]]--
-function WardCheck(object)
-return object and object.valid and (string.find(object.name, "Ward") ~= nil or string.find(object.name, "Wriggle") ~= nil)
-end
 
---[[function JumpReady()
-if jumpReady == true then
-for i,object in ipairs(WardTable) do
-if object ~= nil and object.valid and math.sqrt((object.x-mousePos.x)^2+(object.z-mousePos.z)^2) < 150 then
-CastSpell(_E, object)
-jumpReady = false
-end
-end
-end]]
-
-function wardJump(x, y)
---->
-if EREADY then
-local Jumped = false
-local WardDistance = 300
-for _, ally in pairs(allyHeroes) do
-if ValidTarget(ally, Erange, false) and ally ~= nil then
-if GetDistanceSqr(ally, mousePos) <= WardDistance*WardDistance then
-CastSpell(_E, ally)
-Jumped = true
-SkillWard.lastJump = GetTickCount() + 2000
-end
-end
-end
-for _, minion in pairs(allyMinions.objects) do
-if ValidTarget(minion, Erange, false) and minion ~= nil then
-if GetDistanceSqr(minion, mousePos) <= WardDistance*WardDistance then
-CastSpell(_E, minion)
-Jumped = true
-SkillWard.lastJump = GetTickCount() + 2000
-end
-end
-end
-for _, minion in pairs(enemyMinions.objects) do
-if ValidTarget(minion, Erange, false) and minion ~= nil then
-if GetDistanceSqr(minion, mousePos) <= WardDistance*WardDistance then
-CastSpell(_E, minion)
-Jumped = true
-SkillWard.lastJump = GetTickCount() + 2000
-end
-end
-end
-if next(Wards) ~= nil then
-for i, obj in pairs(Wards) do 
-if obj.valid then
-MousePos = getMousePos()
-if GetDistanceSqr(obj, MousePos) <= WardDistance*WardDistance then
-CastSpell(_E, obj)
-Jumped = true
-SkillWard.lastJump = GetTickCount() + 2000
-end
-end
-end
-end
-
---[[if not Jumped and GetTickCount() >= SkillWard.lastJump then
-if Items.TrinketWard.ready then
-SkillWard.itemSlot = ITEM_7
-elseif Items.RubySightStone.ready then
-SkillWard.itemSlot = rstSlot
-elseif Items.SightStone.ready then 
-SkillWard.itemSlot = ssSlot
-elseif Items.SightWard.ready then
-SkillWard.itemSlot = swSlot
-elseif Items.VisionWard.ready then
-SkillWard.itemSlot = vwSlot
-end
-
-if SkillWard.itemSlot ~= nil then
-CastSpell(SkillWard.itemSlot, x, y)
-Jumped = true
-SkillWard.lastJump = GetTickCount() + 2000
-SkillWard.itemSlot = nil
-end
-end]]
-end
----<
-end
-
-function JumpCheck()
-local x = mousePos.x
-local z = mousePos.z
-local dx = x - player.x
-local dz = z - player.z
-local rad1 = math.atan2(dz, dx)
-
-SWardSlot = GetInventorySlotItem(SWard)
-VWardSlot = GetInventorySlotItem(VWard)
-SStoneSlot = GetInventorySlotItem(SStone)
-RSStoneSlot = GetInventorySlotItem(RSStone)
-WrigglesSlot = GetInventorySlotItem(Wriggles)
-
-if RSStoneSlot ~= nil and CanUseSpell(RSStoneSlot) == READY then
-wardSlot = RSStoneSlot
-elseif SStoneSlot ~= nil and CanUseSpell(SStoneSlot) == READY then
-wardSlot = SStoneSlot
-elseif SWardSlot ~= nil then
-wardSlot = SWardSlot
-elseif VWardSlot ~= nil then
-wardSlot = VWardSlot
-elseif WrigglesSlot ~= nil then
-wardSlot = WrigglesSlot
-
-end
-
-if wardSlot ~= nil then
-local dx1 = jumpRange*math.cos(rad1)
-local dz1 = jumpRange*math.sin(rad1)
-local x1 = x - dx1
-local z1 = z - dz1
-if EREADY and math.sqrt(dx*dx + dz*dz) <= 600 then
-CastSpell(wardSlot, mousePos.x, mousePos.z)
-SkillWard.lastJump = GetTickCount() + 2000
---wardSlot= nil
+function DmgCalc()
+	for i=1, heroManager.iCount do
+		local enemy = heroManager:GetHero(i)
+			if enemy ~= nil and ValidTarget(enemy) then
+			local hp = enemy.health
+			local iDmg = (50 + (20 * myHero.level))
+			local qDmg = getDmg("Q", enemy, myHero)
+			local eDmg = getDmg("E", enemy, myHero)
+			local rDmg = getDmg("R", enemy, myHero)
+			if hp > (qDmg+eDmg+iDmg) then
+				killstring[enemy.networkID] = "Harass Him!!!"
+			elseif hp < qDmg then
+				killstring[enemy.networkID] = "Q Kill!"
+			elseif hp < eDmg then
+				killstring[enemy.networkID] = "E Kill!"
+			elseif hp < rDmg then
+				killstring[enemy.networkID] = "R Kill!"
+            elseif hp < (iDmg) then
+                killstring[enemy.networkID] = "Ignite Kill!"
+			elseif hp < (qDmg+iDmg) then
+				killstring[enemy.networkID] = "Q+Ignite Kill!"
+			elseif hp < (eDmg+iDmg) then
+				killstring[enemy.networkID] = "E+Ignite Kill!"
+			elseif hp < (rDmg+iDmg) then
+				killstring[enemy.networkID] = "R+Ignite Kill!"
+			elseif hp < (qDmg+eDmg) then
+                killstring[enemy.networkID] = "Q+E Kill!"
+			elseif hp < (qDmg+rDmg) then
+				killstring[enemy.networkID] = "Q+R Kill!"
+			elseif hp < (eDmg+rDmg) then
+				killstring[enemy.networkID] = "E+R Kill!"
+			elseif hp < (qDmg+eDmg+rDmg) then
+				killstring[enemy.networkID] = "Q+E+R Kill!"
+			elseif hp < (qDmg+eDmg+iDmg) then
+                killstring[enemy.networkID] = "Q+E+Ignite Kill!"
+			elseif hp < (qDmg+eDmg+rDmg+iDmg) then
+				killstring[enemy.networkID] = "Q+E+R+Ignite Kill!"
+			end
 		end
 	end
 end
 
-function OnCreateObj(obj)
-if WardCheck(object) then table.insert(WardTable, object) end
-
-if obj.valid and (string.find(obj.name, "Ward") ~= nil or string.find(obj.name, "Wriggle") ~= nil or string.find(obj.name, "Trinket")) then 
-Wards[#Wards+1] = obj
-end
-end
-function OnDeleteObj(obj)
-for i, ward in pairs(Wards) do
-if not ward.valid or (obj.name == ward.name and obj.x == ward.x and obj.z == ward.z) then
-table.remove(Wards, i)
-end
-end
-end
-
-function getMousePos(range)
-local temprange = range or SkillWard.range
-local MyPos = Vector(myHero.x, myHero.y, myHero.z)
-local MousePos = Vector(mousePos.x, mousePos.y, mousePos.z)
-
-return MyPos - (MyPos - MousePos):normalized() * SkillWard.range
-end
-function Jump()
-if RSStoneSlot ~= nil and CanUseSpell(RSStoneSlot) == READY then
-wardSlot = RSStoneSlot
-elseif SStoneSlot ~= nil and CanUseSpell(SStoneSlot) == READY then
-wardSlot = SStoneSlot
-elseif SWardSlot ~= nil then
-wardSlot = SWardSlot
-elseif VWardSlot ~= nil then
-wardSlot = VWardSlot
-elseif WrigglesSlot ~= nil then
-wardSlot = WrigglesSlot
-
-end
-
-if wardSlot ~= nil then
-if EREADY then
-CastSpell(wardSlot, mousePos.x, mousePos.z)
-SkillWard.lastJump = GetTickCount() + 2000
---wardSlot= nil
+function CustomOnDraw()
+		if Config.Draw.drawDD then
+			DmgCalc()
+			for _, enemy in ipairs(GetEnemyHeroes()) do
+				if ValidTarget(enemy, 100000) and killstring[enemy.networkID] ~= nil then
+					local pos = WorldToScreen(D3DXVECTOR3(enemy.x, enemy.y, enemy.z))
+					DrawText(killstring[enemy.networkID], 20, pos.x - 35, pos.y - 40, 0xFFFFFF00)
+				end
+			end
 		end
-	end
 	end
