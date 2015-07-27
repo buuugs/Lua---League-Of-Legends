@@ -108,9 +108,11 @@ Config:addSubMenu("Farm", "farm")
 Config.farm:addParam("UseQFarm", "Use Q", SCRIPT_PARAM_ONOFF, true)
 Config.farm:addParam("UseWFarm", "Use W", SCRIPT_PARAM_ONOFF, false)
 
+Config:addSubMenu("Credits", "Credits")
 
-Config.Credits:addParam("info", " >> Autor : ", SCRIPT_PARAM_INFO, "Ajgoreq")
-Config.Credits:addParam("info8", " >> Tester : ", SCRIPT_PARAM_INFO, "venemo")
+Config.Credits:addParam("info", " >> Autor : ", SCRIPT_PARAM_INFO, "Igoreeeku")
+Config.Credits:addParam("info8", " >> Tester : ", SCRIPT_PARAM_INFO, "Venemo")
+
 
 Config:addParam("info4", " >> Version ", SCRIPT_PARAM_INFO, "8.0")
 
