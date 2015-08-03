@@ -1,4 +1,4 @@
-local version = "9.0"
+local version = "9.1"
 
 
 local autoupdateenabled = true
@@ -33,34 +33,6 @@ if autoupdateenabled then
 	AddTickCallback(update)
 end
 
--- Lib Updater
-local REQUIRED_LIBS = {
-["SxOrbWalk"] = "https://raw.github.com/Superx321/BoL/master/common/SxOrbWalk.lua"
-}
-local DOWNLOADING_LIBS, DOWNLOAD_COUNT = false, 0
-
-function AfterDownload()
-DOWNLOAD_COUNT = DOWNLOAD_COUNT - 1
-if DOWNLOAD_COUNT == 0 then
-DOWNLOADING_LIBS = false
-print(" Required libraries downloaded successfully, please reload (double F9).")
-end
-end
-
-for DOWNLOAD_LIB_NAME, DOWNLOAD_LIB_URL in pairs(REQUIRED_LIBS) do
-if FileExist(LIB_PATH .. DOWNLOAD_LIB_NAME .. ".lua") then
-require(DOWNLOAD_LIB_NAME)
-else
-DOWNLOADING_LIBS = true
-DOWNLOAD_COUNT = DOWNLOAD_COUNT + 1
-DownloadFile(DOWNLOAD_LIB_URL, LIB_PATH .. DOWNLOAD_LIB_NAME..".lua", AfterDownload)
-end
-end
-
-
-if FileExist(LIB_PATH.."SxOrbWalk.lua") then
-SxOrbloaded = true
-end
 
 if myHero.charName ~= "Katarina" then return end
 
@@ -68,16 +40,16 @@ local e = {}
 --ScripttStatus
 assert(load(Base64Decode("G0x1YVIAAQQEBAgAGZMNChoKAAAAAAAAAAAAAQIKAAAABgBAAEFAAAAdQAABBkBAAGUAAAAKQACBBkBAAGVAAAAKQICBHwCAAAQAAAAEBgAAAGNsYXNzAAQNAAAAU2NyaXB0U3RhdHVzAAQHAAAAX19pbml0AAQLAAAAU2VuZFVwZGF0ZQACAAAAAgAAAAgAAAACAAotAAAAhkBAAMaAQAAGwUAABwFBAkFBAQAdgQABRsFAAEcBwQKBgQEAXYEAAYbBQACHAUEDwcEBAJ2BAAHGwUAAxwHBAwECAgDdgQABBsJAAAcCQQRBQgIAHYIAARYBAgLdAAABnYAAAAqAAIAKQACFhgBDAMHAAgCdgAABCoCAhQqAw4aGAEQAx8BCAMfAwwHdAIAAnYAAAAqAgIeMQEQAAYEEAJ1AgAGGwEQA5QAAAJ1AAAEfAIAAFAAAAAQFAAAAaHdpZAAEDQAAAEJhc2U2NEVuY29kZQAECQAAAHRvc3RyaW5nAAQDAAAAb3MABAcAAABnZXRlbnYABBUAAABQUk9DRVNTT1JfSURFTlRJRklFUgAECQAAAFVTRVJOQU1FAAQNAAAAQ09NUFVURVJOQU1FAAQQAAAAUFJPQ0VTU09SX0xFVkVMAAQTAAAAUFJPQ0VTU09SX1JFVklTSU9OAAQEAAAAS2V5AAQHAAAAc29ja2V0AAQIAAAAcmVxdWlyZQAECgAAAGdhbWVTdGF0ZQAABAQAAAB0Y3AABAcAAABhc3NlcnQABAsAAABTZW5kVXBkYXRlAAMAAAAAAADwPwQUAAAAQWRkQnVnc3BsYXRDYWxsYmFjawABAAAACAAAAAgAAAAAAAMFAAAABQAAAAwAQACBQAAAHUCAAR8AgAACAAAABAsAAABTZW5kVXBkYXRlAAMAAAAAAAAAQAAAAAABAAAAAQAQAAAAQG9iZnVzY2F0ZWQubHVhAAUAAAAIAAAACAAAAAgAAAAIAAAACAAAAAAAAAABAAAABQAAAHNlbGYAAQAAAAAAEAAAAEBvYmZ1c2NhdGVkLmx1YQAtAAAAAwAAAAMAAAAEAAAABAAAAAQAAAAEAAAABAAAAAQAAAAEAAAABAAAAAUAAAAFAAAABQAAAAUAAAAFAAAABQAAAAUAAAAFAAAABgAAAAYAAAAGAAAABgAAAAUAAAADAAAAAwAAAAYAAAAGAAAABgAAAAYAAAAGAAAABgAAAAYAAAAHAAAABwAAAAcAAAAHAAAABwAAAAcAAAAHAAAABwAAAAcAAAAIAAAACAAAAAgAAAAIAAAAAgAAAAUAAABzZWxmAAAAAAAtAAAAAgAAAGEAAAAAAC0AAAABAAAABQAAAF9FTlYACQAAAA4AAAACAA0XAAAAhwBAAIxAQAEBgQAAQcEAAJ1AAAKHAEAAjABBAQFBAQBHgUEAgcEBAMcBQgABwgEAQAKAAIHCAQDGQkIAx4LCBQHDAgAWAQMCnUCAAYcAQACMAEMBnUAAAR8AgAANAAAABAQAAAB0Y3AABAgAAABjb25uZWN0AAQRAAAAc2NyaXB0c3RhdHVzLm5ldAADAAAAAAAAVEAEBQAAAHNlbmQABAsAAABHRVQgL3N5bmMtAAQEAAAAS2V5AAQCAAAALQAEBQAAAGh3aWQABAcAAABteUhlcm8ABAkAAABjaGFyTmFtZQAEJgAAACBIVFRQLzEuMA0KSG9zdDogc2NyaXB0c3RhdHVzLm5ldA0KDQoABAYAAABjbG9zZQAAAAAAAQAAAAAAEAAAAEBvYmZ1c2NhdGVkLmx1YQAXAAAACgAAAAoAAAAKAAAACgAAAAoAAAALAAAACwAAAAsAAAALAAAADAAAAAwAAAANAAAADQAAAA0AAAAOAAAADgAAAA4AAAAOAAAACwAAAA4AAAAOAAAADgAAAA4AAAACAAAABQAAAHNlbGYAAAAAABcAAAACAAAAYQAAAAAAFwAAAAEAAAAFAAAAX0VOVgABAAAAAQAQAAAAQG9iZnVzY2F0ZWQubHVhAAoAAAABAAAAAQAAAAEAAAACAAAACAAAAAIAAAAJAAAADgAAAAkAAAAOAAAAAAAAAAEAAAAFAAAAX0VOVgA="), nil, "bt", _ENV))() ScriptStatus("WJMLQIIKJLL") 
 --
-AnimTrack = 0
+
 lastE = 0
 eDelay = 3500 -- 3,5 seconds
 
+require "SxOrbWalk"
 
-
-local Wrange = 375
+local Wrange = 400
 local Erange = 700
 local Qrange = 675
-local Rrange = 550
+local Rrange = 490
 local ignite = nil
 local iDMG = 0
 
@@ -86,7 +58,7 @@ local QREADY, WREADY, EREADY, RREADY = false
 
 
 function OnLoad()
-
+ForceTarget = nil lastAttack = 0 previousAttackCooldown = 0 previousWindUp = 0 ultOn = 0 
 StayBelle()
  
 
@@ -118,6 +90,7 @@ Config.Combo:addParam("UseQ", "Use Q", SCRIPT_PARAM_ONOFF, true)
 Config.Combo:addParam("UseW", "Use W", SCRIPT_PARAM_ONOFF, true) 
 Config.Combo:addParam("UseE", "Use E", SCRIPT_PARAM_ONOFF, true) 
 Config.Combo:addParam("UseR", "Use R", SCRIPT_PARAM_ONOFF, true)
+Config.Combo:addParam("UseAA", "Use AutoAttack", SCRIPT_PARAM_ONOFF, true)
 Config.Combo:addParam("UseEDel", "Humanizer", SCRIPT_PARAM_ONOFF, true)
 
 Config:addSubMenu("Misc", "Misc")
@@ -147,10 +120,10 @@ Config.Credits:addParam("info", " >> Autor : ", SCRIPT_PARAM_INFO, "Igoreeeku")
 Config.Credits:addParam("info8", " >> Tester : ", SCRIPT_PARAM_INFO, "Venemo")
 
 
-Config:addParam("info4", " >> Version ", SCRIPT_PARAM_INFO, "8.0")
+Config:addParam("info4", " >> Version ", SCRIPT_PARAM_INFO, "9.1")
 
 
-ts = TargetSelector(TARGET_LESS_CAST_PRIORITY, Erange)
+ts = TargetSelector(TARGET_LESS_CAST, 700, DAMAGE_MAGICAL, false, true) 
 enemyMinions = minionManager(MINION_ENEMY, Qrange, myHero, MINION_SORT_MAXHEALTH_DEC)
 ts.name = "Belle"
 Config:addSubMenu("Target Selector", "TS")
@@ -176,8 +149,11 @@ killstring = {}
 	-----Combo-----
 	if Config.Keys.combokey then
 	ts:update()
+		
+
 	Combo()
 	end
+	
 	----Harass-----
 	if Config.Keys.harass then
 	Harass()
@@ -217,6 +193,9 @@ end
 function Checks()
 
 target = ts.target 
+if Forcetarget ~= nil and ValidTarget(Forcetarget, 900) then 
+		target = Forcetarget 
+	end 
 SxOrb:ForceTarget(target)
 allyMinions:update()
 
@@ -235,7 +214,16 @@ CastQ()
 CastE()
 CastW()
 CastR()
+AA()
 	end
+end
+
+function AA()
+if Config.Combo.UseAA then
+if target and GetDistance(target) < myHero.range+myHero.boundingRadius+target.boundingRadius+25 and timeToShoot() and not ultOn then 
+				myHero:Attack(target) 
+			end 
+	end 				
 end
 
 function CastQ()
@@ -305,27 +293,31 @@ if ValidTarget(target) then
 if not RREADY then
 if Config.Misc.KSIG then
 AutoIgnite(target)
-		end
-	end
-end
+   end
+  end
+ end
 end
 
 function KillSteal()
 	for i, enemy in ipairs(e) do
 	if not RREADY then 
-		if ValidTarget(enemy) and GetDistance(enemy) < 700 then
+		if ValidTarget(enemy) and GetDistance(enemy) < 675 then
 		if Config.Misc.KSQ then
-			if QReady and getDmg("Q", enemy, myHero) > enemy.health then
+			if QREADY and getDmg("Q", enemy, myHero) > enemy.health then
 				CastSpell(_Q, enemy)
 				end
 			end
+			end
+			if ValidTarget(enemy) and GetDistance(enemy) < 400 then
 			if Config.Misc.KSW then
-			if WReady and getDmg("W", enemy, myHero) > enemy.health then
+			if WREADY and getDmg("W", enemy, myHero) > enemy.health then
 				CastSpell(_W)
 				end
 			end
+			end
 				if Config.Misc.KSE then
-			if EReady and getDmg("E", enemy, myHero) > enemy.health then
+				if ValidTarget(enemy) and GetDistance(enemy) < 700 then
+			if EREADY and getDmg("E", enemy, myHero) > enemy.health then
 				CastSpell(_E, enemy)
 				end
 			end
@@ -334,15 +326,6 @@ function KillSteal()
  end
 end
 
-function OnAnimation(Unit, Animation)
-if Unit.isMe and (Animation == "Spell4" or Animation == "Spell4_Loop") then
-AnimTrack = GetTickCount() + 50 + GetLatency()
-	end
-end
-
-function IsChanneling()
-return AnimTrack > GetTickCount()
-end
 
 function Harass()
 
@@ -442,3 +425,41 @@ function CustomOnDraw()
 			end
 		end
 	end
+	
+	function ProcessSpell(unit, spell) 
+	if unit and unit.isMe and spell then lastAttack = GetTickCount() - GetLatency()/2 previousWindUp = spell.windUpTime*1000 previousAttackCooldown = spell.animationTime*1000 
+		if spell.name:lower():find("katarinar") then 
+		ultOn = GetInGameTimer()+2.5 
+		end 
+	end 
+end
+
+function timeToShoot() 
+	return (GetTickCount() + GetLatency()/2 > lastAttack + previousAttackCooldown) and (ultOn < GetInGameTimer() or target.dead) 
+end 
+
+function heroCanMove() 
+	return (GetTickCount() + GetLatency()/2 > lastAttack + previousWindUp + 50) and (ultOn < GetInGameTimer() or target.dead) 
+end 
+
+function OnWndMsg(Msg, Key) 
+	if Msg == WM_LBUTTONDOWN then 
+		local minD = 0 
+		local starget = nil 
+		for i, enemy in ipairs(GetEnemyHeroes()) do 
+			if ValidTarget(enemy) then 
+				if GetDistance(enemy, mousePos) <= minD or starget == nil then minD = GetDistance(enemy, mousePos) starget = enemy 
+				end 
+			end 
+		end 
+		if starget and minD < 500 then 
+			if Forcetarget and starget.charName == Forcetarget.charName then 
+				Forcetarget = nil 
+			else 
+				Forcetarget = starget 
+				print("<font color=\"#FF0000\">Slay Belle Katarina: New target selected: "..starget.charName.."</font>") 
+			end 
+		end 
+	end
+end
+print("<font color=\"#FF0000\">SlayBelle Katarina Activated.</font>")
