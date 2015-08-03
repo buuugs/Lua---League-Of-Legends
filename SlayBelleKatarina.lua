@@ -1,6 +1,41 @@
+local version = "9.0"
+
+
+local autoupdateenabled = true
+local UPDATE_SCRIPT_NAME = "SlayBelleKatarina"
+local UPDATE_HOST = "raw.github.com"
+local UPDATE_PATH = "/ajgoreq/BoL/master/SlayBelleKatarina.lua"
+local UPDATE_FILE_PATH = SCRIPT_PATH..GetCurrentEnv().FILE_NAME
+local UPDATE_URL = "https://"..UPDATE_HOST..UPDATE_PATH
+
+local ServerData
+if autoupdateenabled then
+	GetAsyncWebResult(UPDATE_HOST, UPDATE_PATH, function(d) ServerData = d end)
+	function update()
+		if ServerData ~= nil then
+			local ServerVersion
+			local send, tmp, sstart = nil, string.find(ServerData, "local version = \"")
+			if sstart then
+				send, tmp = string.find(ServerData, "\"", sstart+1)
+			end
+			if send then
+				ServerVersion = tonumber(string.sub(ServerData, sstart+1, send-1))
+			end
+
+			if ServerVersion ~= nil and tonumber(ServerVersion) ~= nil and tonumber(ServerVersion) > tonumber(version) then
+				DownloadFile(UPDATE_URL.."?nocache"..myHero.charName..os.clock(), UPDATE_FILE_PATH, function () print("<font color=\"#FF0000\"><b>"..UPDATE_SCRIPT_NAME..":</b> successfully updated. Reload (double F9) Please. ("..version.." => "..ServerVersion..")</font>") end)     
+			elseif ServerVersion then
+				print("<font color=\"#FF0000\"><b>"..UPDATE_SCRIPT_NAME..":</b> You have got the latest version: <u><b>"..ServerVersion.."</b></u></font>")
+			end		
+			ServerData = nil
+		end
+	end
+	AddTickCallback(update)
+end
+
 -- Lib Updater
 local REQUIRED_LIBS = {
-["SxOrbWalk"] = "https://raw.githubus...n/SxOrbWalk.lua"
+["SxOrbWalk"] = "https://raw.github.com/Superx321/BoL/master/common/SxOrbWalk.lua"
 }
 local DOWNLOADING_LIBS, DOWNLOAD_COUNT = false, 0
 
@@ -38,6 +73,7 @@ lastE = 0
 eDelay = 3500 -- 3,5 seconds
 
 
+
 local Wrange = 375
 local Erange = 700
 local Qrange = 675
@@ -52,10 +88,8 @@ local QREADY, WREADY, EREADY, RREADY = false
 function OnLoad()
 
 StayBelle()
- print("<b><font color=\"#FF001E\">>>>..::Slay Belle Katarina::..<<<<</font></b>")
- print("<b><font color=\"#FF001E\">>>>By Igoreeeku<<<<</font></b>")
- print("<b><font color=\"#FF001E\">>>>8.0 Version<<<<</font></b>")
- print("<b><font color=\"#FF001E\">>>>Good Luck<<<<</font></b>")
+ 
+
 IgniteSet()
 Variables()
 
@@ -132,6 +166,7 @@ SxOrb:LoadToMenu(Config.SxOrb)
 end
 
 function OnTick()
+
 Checks()
 IgniteKS()
 Human()
@@ -140,6 +175,7 @@ KillSteal()
 killstring = {}
 	-----Combo-----
 	if Config.Keys.combokey then
+	ts:update()
 	Combo()
 	end
 	----Harass-----
@@ -152,7 +188,6 @@ killstring = {}
 	end
 
 end
-
 
 
 
@@ -180,7 +215,7 @@ killstring = {}
 end
 
 function Checks()
-ts:update()
+
 target = ts.target 
 SxOrb:ForceTarget(target)
 allyMinions:update()
@@ -195,6 +230,7 @@ end
 function Combo()
 
 	if ValidTarget(target) then
+	
 CastQ()
 CastE()
 CastW()
@@ -266,14 +302,17 @@ end
 
 function IgniteKS()
 if ValidTarget(target) then
+if not RREADY then
 if Config.Misc.KSIG then
 AutoIgnite(target)
 		end
 	end
 end
+end
 
 function KillSteal()
 	for i, enemy in ipairs(e) do
+	if not RREADY then 
 		if ValidTarget(enemy) and GetDistance(enemy) < 700 then
 		if Config.Misc.KSQ then
 			if QReady and getDmg("Q", enemy, myHero) > enemy.health then
@@ -292,8 +331,8 @@ function KillSteal()
 			end
 		end
 	end
+ end
 end
-
 
 function OnAnimation(Unit, Animation)
 if Unit.isMe and (Animation == "Spell4" or Animation == "Spell4_Loop") then
