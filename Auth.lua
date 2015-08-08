@@ -1,1 +1,1 @@
-local names = {"igoreeeku", "venemo","name3"}
+{"igoreeeku", "venemo","name3"}
