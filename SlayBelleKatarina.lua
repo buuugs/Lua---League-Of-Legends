@@ -1,4 +1,4 @@
-local version = "9.1"
+local version = "9.3"
 
 
 local autoupdateenabled = true
@@ -44,7 +44,6 @@ assert(load(Base64Decode("G0x1YVIAAQQEBAgAGZMNChoKAAAAAAAAAAAAAQIKAAAABgBAAEFAAA
 lastE = 0
 eDelay = 3500 -- 3,5 seconds
 
-require "SxOrbWalk"
 
 local Wrange = 400
 local Erange = 700
@@ -66,8 +65,8 @@ IgniteSet()
 Variables()
 
 AddMsgCallback(CustomOnWndMsg)
-	AddDrawCallback(CustomOnDraw)		
-	AddProcessSpellCallback(CustomOnProcessSpell)
+AddDrawCallback(CustomOnDraw)		
+AddProcessSpellCallback(CustomOnProcessSpell)
 	AddTickCallback(CustomOnTick)
 	
 for i, enemy in ipairs(GetEnemyHeroes()) do
@@ -120,7 +119,7 @@ Config.Credits:addParam("info", " >> Autor : ", SCRIPT_PARAM_INFO, "Igoreeeku")
 Config.Credits:addParam("info8", " >> Tester : ", SCRIPT_PARAM_INFO, "Venemo")
 
 
-Config:addParam("info4", " >> Version ", SCRIPT_PARAM_INFO, "9.1")
+Config:addParam("info4", " >> Version ", SCRIPT_PARAM_INFO, "9.3")
 
 
 ts = TargetSelector(TARGET_LESS_CAST, 700, DAMAGE_MAGICAL, false, true) 
@@ -129,8 +128,6 @@ ts.name = "Belle"
 Config:addSubMenu("Target Selector", "TS")
 Config.TS:addTS(ts)
 
-Config:addSubMenu("Orbwalker", "SxOrb")
-SxOrb:LoadToMenu(Config.SxOrb)
 
 	Config.Keys:permaShow("combokey")
   Config.Keys:permaShow("harass")
@@ -149,11 +146,11 @@ killstring = {}
 	-----Combo-----
 	if Config.Keys.combokey then
 	ts:update()
-		
-
 	Combo()
+	elseif ulti
+	then
+	return
 	end
-	
 	----Harass-----
 	if Config.Keys.harass then
 	Harass()
@@ -168,6 +165,11 @@ end
 
 
 function OnDraw()
+if Config.Keys.farmkey then
+DrawText("Farm: ON", 18, 100, 100, 0xFFFF0000)
+else
+DrawText("Farm: OFF", 18, 100, 100, 0xFFFF0000)
+end
 if Config.Draw.DrawQ and QREADY and not myHero.dead then 
 DrawCircle(myHero.x, myHero.y, myHero.z, Qrange, 0x00FF00)
 end
@@ -177,8 +179,7 @@ end
 if Config.Draw.DrawE and EREADY and not myHero.dead then 
 DrawCircle(myHero.x, myHero.y, myHero.z, Erange, 0x00FF00)
 	end
-	end
-
+end
 
 function Variables()
 
@@ -196,7 +197,7 @@ target = ts.target
 if Forcetarget ~= nil and ValidTarget(Forcetarget, 900) then 
 		target = Forcetarget 
 	end 
-SxOrb:ForceTarget(target)
+
 allyMinions:update()
 
 QREADY = (myHero:CanUseSpell(_Q) == READY)
@@ -300,7 +301,7 @@ end
 
 function KillSteal()
 	for i, enemy in ipairs(e) do
-	if not RREADY then 
+	if not ulti then 
 		if ValidTarget(enemy) and GetDistance(enemy) < 675 then
 		if Config.Misc.KSQ then
 			if QREADY and getDmg("Q", enemy, myHero) > enemy.health then
@@ -426,22 +427,28 @@ function CustomOnDraw()
 		end
 	end
 	
-	function ProcessSpell(unit, spell) 
-	if unit and unit.isMe and spell then lastAttack = GetTickCount() - GetLatency()/2 previousWindUp = spell.windUpTime*1000 previousAttackCooldown = spell.animationTime*1000 
-		if spell.name:lower():find("katarinar") then 
-		ultOn = GetInGameTimer()+2.5 
-		end 
-	end 
+--ULTI	
+function OnAnimation(Unit, Animation)
+if Unit.isMe and (Animation == "Spell4" or Animation == "Spell4_Loop") then
+ulti = true
+AnimTrack = GetTickCount() + 50 + GetLatency()
+else
+ulti = false
+    end
 end
 
-function timeToShoot() 
+function IsChanneling()
+return AnimTrack > GetTickCount()
+end
+ 
+ function timeToShoot() 
 	return (GetTickCount() + GetLatency()/2 > lastAttack + previousAttackCooldown) and (ultOn < GetInGameTimer() or target.dead) 
 end 
 
 function heroCanMove() 
 	return (GetTickCount() + GetLatency()/2 > lastAttack + previousWindUp + 50) and (ultOn < GetInGameTimer() or target.dead) 
 end 
-
+ 
 function OnWndMsg(Msg, Key) 
 	if Msg == WM_LBUTTONDOWN then 
 		local minD = 0 
