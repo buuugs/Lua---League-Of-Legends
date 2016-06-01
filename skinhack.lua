@@ -1,1 +1,21 @@
-assert(load(Base64Decode("ZnVuY3Rpb24gT25Mb2FkKCkNCk1lbnUoKQ0KZW5kDQpmdW5jdGlvbiBNZW51KCkNCnByaW50KCJFbG8gxYF1a2FzeiA6KSBOYXBpc2HFgmVtIGRsYSBDaWViaWUgU2tpbiBIYWNrYSIpDQptZW51ID0gc2NyaXB0Q29uZmlnKCJTa2luIENoYW5nZXIiLCAiU2tpbiBDaGFuZ2VyIikNCm1lbnU6YWRkUGFyYW0oInNraW4iLCAiRW5hYmxlIiwgU0NSSVBUX1BBUkFNX09OT0ZGLCB0cnVlKQ0KbWVudTphZGRQYXJhbSgic2tpbmxpc3QiLCAiU2tpbiIsIFNDUklQVF9QQVJBTV9MSVNULCAxLCB7IjEiLCIyIiwiMyIsIjQiLCI1IiwiNiIsIjciLCI4IiwiOSIsIjEwIiwiMTEiLCIxMiIsIjEzIn0pDQptZW51OnNldENhbGxiYWNrKCJza2luIiwgZnVuY3Rpb24gKHZhbHVlKQ0KaWYgdmFsdWUgdGhlbg0KU2V0U2tpbihteUhlcm8sIG1lbnUuc2tpbmxpc3QtMSkNCmVsc2UNClNldFNraW4obXlIZXJvLCAtMSkNCmVuZA0KZW5kKQ0KbWVudTpzZXRDYWxsYmFjaygic2tpbmxpc3QiLCBmdW5jdGlvbiAodmFsdWUpDQppZiBtZW51LnNraW4gdGhlbg0KU2V0U2tpbihteUhlcm8sIG1lbnUuc2tpbmxpc3QtMSkNCmVuZA0KZW5kKQkNCmVuZA0K", nil, "bt", _ENV))()
+function OnLoad()
+Menu()
+end
+function Menu()
+print("Elo Łukasz :) Napisałem dla Ciebie Skin Hacka")
+menu = scriptConfig("Skin Changer", "Skin Changer")
+menu:addParam("skin", "Enable", SCRIPT_PARAM_ONOFF, true)
+menu:addParam("skinlist", "Skin", SCRIPT_PARAM_LIST, 1, {"1","2","3","4","5","6","7","8","9","10","11","12","13"})
+menu:setCallback("skin", function (value)
+if value then
+SetSkin(myHero, menu.skinlist-1)
+else
+SetSkin(myHero, -1)
+end
+end)
+menu:setCallback("skinlist", function (value)
+if menu.skin then
+SetSkin(myHero, menu.skinlist-1)
+end
+end)	
+end
